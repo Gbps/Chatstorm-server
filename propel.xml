@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<config>
+    <propel>
+        <database>
+            <connections>
+                <connection id="chatstorm">
+                    <adapter>mysql</adapter>
+                    <classname>Propel\Runtime\Connection\ConnectionWrapper</classname>
+                    <dsn>mysql:host=localhost;dbname=chatstorm</dsn>
+                    <user>chatstorm</user>
+                    <password></password>
+                    <attributes></attributes>
+                </connection>
+            </connections>
+        </database>
+        <runtime>
+            <defaultConnection>chatstorm</defaultConnection>
+            <connection>chatstorm</connection>
+        </runtime>
+        <generator>
+            <defaultConnection>chatstorm</defaultConnection>
+            <connection>chatstorm</connection>
+        </generator>
+    </propel>
+</config>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="chatstorm" defaultIdMethod="native">
+
+	<table name="RegisteredUser" phpName="RegisteredUser">
+	    <column name="RegisteredUserId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+	    <column name="Email" type="varchar" size="255" required="true" />
+	    <column name="PasswordHash" type="varchar" size="64" required="true"/>
+	    <column name="ActivationKey" type="varchar" size="25" required="true"/>
+		<column name="RegisteredDate" type="timestamp" required="true"/>
+		<column name="ActivationDate" type="timestamp" required="true"/>
+		<column name="Activated" type="boolean" required="true"/>
+		<column name="Rating" type="integer" required="true"/>
+		<column name="LocationLatitude" type="double" required="true"/>
+		<column name="LocationLongitude" type="double" required="true"/>
+		<column name="LocationLongitude" type="double" required="true"/>
+		<column name="LocationAccuracy" type="integer" required="true"/>
+		<column name="IMEI" type="varchar" size="14" required="true"/>
+	 </table>
+
+</database>
