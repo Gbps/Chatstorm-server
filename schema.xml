@@ -30,20 +30,25 @@
     <table name="Room" phpName="Room">
         <column name="RoomId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="CreatedDate" type="timestamp" required="true" />
+        <column name="CreatorUserId" primaryKey="true" type="integer" required="true" />
+        <foreign-key foreignTable="RegisteredUser">
+            <reference local="CreatorUserId" foreign="RegisteredUserId"/>
+        </foreign-key>
+        <column name="Topic" type="varchar" size="128" required="true" />
         <column name="Timeout" type="timestamp" required="true"/>
-        <column name="RoomUsersId" type="integer" required="true"/>
         <column name="Rating" type="integer" required="true"/>
         <column name="LocationLatitude" type="double" required="true"/>
         <column name="LocationLongitude" type="double" required="true"/>
         <column name="LocationAccuracy" type="integer" required="true"/>
+
     </table>
 
-    <table name="RoomUser" phpName="RoomUser" isCrossRef="true">
+    <table name="RoomUser" phpName="RoomUser">
         <column name="RoomUserId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="VisibleName" type="varchar" size="32" required="true" />
-        <column name="RegisteredUserId" type="integer" required="true"/>
+        <column name="RegisteredUserId" primaryKey="true"  type="integer" required="true"/>
         <foreign-key foreignTable="RegisteredUser">
-            <reference local="RoomUserId" foreign="RegisteredUserId"/>
+            <reference local="RegisteredUserId" foreign="RegisteredUserId"/>
         </foreign-key>
         <column name="RoomId" primaryKey="true" type="integer" required="true"/>
         <foreign-key foreignTable="Room">
