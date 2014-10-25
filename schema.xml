@@ -16,4 +16,42 @@
 		<column name="IMEI" type="varchar" size="64" required="true"/>
 	 </table>
 
+    <table name="Message" phpName="Message">
+        <column name="MessageId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="Text" type="varchar" size="1024" required="true" />
+        <column name="RoomUserId" type="integer" required="true"/>
+        <column name="PostTime" type="timestamp" required="true"/>
+    </table>
+
+    <table name="MessageStacks" phpName="MessageStacks">
+        <column name="MessageStackId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="RoomId" type="integer" required="true" />
+        <column name="MessageId" type="integer" required="true"/>
+    </table>
+
+    <table name="Room" phpName="Room">
+        <column name="RoomId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="CreatedDate" type="timestamp" required="true" />
+        <column name="Timeout" type="timestamp" required="true"/>
+        <column name="MessageStackId" type="integer" required="true"/>
+        <column name="RoomUsersId" type="integer" required="true"/>
+        <column name="Rating" type="integer" required="true"/>
+        <column name="LocationLatitude" type="double" required="true"/>
+        <column name="LocationLongitude" type="double" required="true"/>
+        <column name="LocationAccuracy" type="integer" required="true"/>
+    </table>
+
+    <table name="RoomUser" phpName="RoomUser">
+        <column name="RoomUserId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="VisibleName" type="varchar" size="32" required="true" />
+        <column name="UserId" type="integer" required="true"/>
+        <column name="RoomId" type="integer" required="true"/>
+    </table>
+
+    <table name="RoomUsers" phpName="RoomUsers">
+        <column name="RoomUsersId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="RoomUserId" type="integer" required="true" />
+        <column name="RoomId" type="integer" required="true"/>
+    </table>
+
 </database>
