@@ -5,6 +5,27 @@ namespace Chatstorm
 
     class Util
     {
+        public static function DieWithJSONError( $msg )
+        {
+            $convArray = array( 'success' => false, 'error' => $msg);
+            die( json_encode( $convArray ) );
+        }
+
+        public static function ReturnJSON( $obj )
+        {
+            $convArray = array( 'success' => true, 'error' => "");
+            $newArray = array_merge( $obj, $convArray );
+
+            return json_encode( $newArray );
+        }
+
+        public static function ReturnJSONSuccess(  )
+        {
+            $convArray = array( 'success' => true, 'error' => "");
+
+            return json_encode( $convArray );
+        }
+
         public static function GenerateActivationKey(  )
         {
             $length = 25;

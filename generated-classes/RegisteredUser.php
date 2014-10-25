@@ -18,13 +18,12 @@ use Chatstorm\Util as Util;
  */
 class RegisteredUser extends BaseRegisteredUser
 {
-    public static function CreateUser( $email, $password, $imei )
+    public static function CreateUser( $email, $password, $imeiHash )
     {
         if( !Validators::ValidateEmail( $email ) ) return false;
         if( !Validators::ValidatePassword( $password ) ) return false;
 
         $passwordHash = hash( "sha256", $password );
-        $imeiHash = hash( "sha256", $imei );
 
         $newUser = new RegisteredUser();
         $newUser->setEmail( $email );
