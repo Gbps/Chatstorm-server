@@ -1,5 +1,11 @@
 {
     "require": {
         "propel/propel": "~2.0@dev"
+        "monolog/monolog": "1.11.x-dev"
     }
+
+  	"autoload": {
+    "classmap": ["generated-classes/"]
+	}
+
 }
