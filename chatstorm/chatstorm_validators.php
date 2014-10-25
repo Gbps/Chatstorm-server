@@ -18,6 +18,14 @@ namespace Chatstorm
 
             return true;
         }
+
+        public static function ValidateMessage( $message )
+        {
+            // Length <1024
+            if( strlen( $message ) > 1024 ) return false;
+
+            return true;
+        }
     }
 
 

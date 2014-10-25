@@ -22,6 +22,9 @@ class RoomUser extends BaseRoomUser
         $newRoomUser->setRoom( $room );
         $newRoomUser->save();
 
+        $room->addRoomUser( $newRoomUser );
+        $room->save();
+        
         return $newRoomUser;
 
     }

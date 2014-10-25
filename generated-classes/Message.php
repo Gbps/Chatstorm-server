@@ -1,5 +1,10 @@
 <?php
 
+
+include_once __DIR__."/../chatstorm/chatstorm.php";
+
+use Chatstorm\Validators as Validators;
+use Chatstorm\Util as Util;
 use Base\Message as BaseMessage;
 
 /**
@@ -12,10 +17,15 @@ use Base\Message as BaseMessage;
  * long as it does not already exist in the output directory.
  *
  */
+
 class Message extends BaseMessage
 {
+
+
     public static function CreateMessageToRoom( Room $room, RoomUser $creator, $message )
     {
+        if( !Validators::ValidateMessage( $message ) ) Util::DieWithJSONError("Message validation failed.");
+
         $newMessage = new Message();
         $newMessage->setText( $message );
         $newMessage->setRoomuserid( $creator->getRoomuserid() );
@@ -28,6 +38,6 @@ class Message extends BaseMessage
 
         $room->save();
 
-        return true;
+        return $newMessage;
     }
 }
