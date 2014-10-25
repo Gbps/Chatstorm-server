@@ -20,6 +20,7 @@
         <column name="MessageId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="Text" type="varchar" size="1024" required="true" />
         <column name="RoomUserId" type="integer" required="true"/>
+        <column name="RoomId" type="integer" required="true"/>
         <column name="PostTime" type="timestamp" required="true"/>
         <foreign-key foreignTable="RoomUser">
             <reference local="RoomUserId" foreign="RoomUserId"/>
