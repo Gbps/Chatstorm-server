@@ -5,7 +5,7 @@
     require_once "generated-conf/config.php";
 
 
-    Message::create()->doDeleteAll();
+    MessageQuery::create()->doDeleteAll();
     RoomUserQuery::create()->doDeleteAll();
     RoomQuery::create()->doDeleteAll();
     RegisteredUserQuery::create()->doDeleteAll();
