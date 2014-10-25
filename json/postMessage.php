@@ -12,7 +12,7 @@
 
     $imeiHash = $_POST['hash'];
     $message = $_POST['message'];
-    $roomId = inval( $_POST['RoomId'] );
+    $roomId = intval( $_POST['RoomId'] );
 
     $room = RoomQuery::create()->findOneByRoomid( $roomId );
 
