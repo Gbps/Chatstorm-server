@@ -30,14 +30,22 @@
         <column name="RoomId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="CreatedDate" type="timestamp" required="true" />
         <column name="Timeout" type="timestamp" required="true"/>
-        <column name="MessageStackId" type="integer" required="true"/>
         <column name="RoomUsersId" type="integer" required="true"/>
         <column name="Rating" type="integer" required="true"/>
         <column name="LocationLatitude" type="double" required="true"/>
         <column name="LocationLongitude" type="double" required="true"/>
         <column name="LocationAccuracy" type="integer" required="true"/>
-        <foreign-key foreignTable="MessageStack">
-            <reference local="MessageStackId" foreign="MessageStackId"/>
+    </table>
+
+    <table name="MessageStack" phpName="MessageStack" isCrossRef="true">
+        <column name="MessageStackId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
+        <column name="MessageId" type="integer" required="true" />
+        <column name="RoomId" type="integer" required="true" />
+        <foreign-key foreignTable="Message">
+            <reference local="MessageId" foreign="MessageId"/>
+        </foreign-key>
+        <foreign-key foreignTable="Room">
+            <reference local="RoomId" foreign="RoomId"/>
         </foreign-key>
     </table>
 
