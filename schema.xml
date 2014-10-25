@@ -31,7 +31,7 @@
         <column name="RoomId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="CreatedDate" type="timestamp" required="true" />
         <column name="CreatorUserId" primaryKey="true" type="integer" required="true" />
-        <foreign-key foreignTable="RegisteredUser">
+        <foreign-key foreignTable="RegisteredUser" phpName="Creator">
             <reference local="CreatorUserId" foreign="RegisteredUserId"/>
         </foreign-key>
         <column name="Topic" type="varchar" size="128" required="true" />
