@@ -16,13 +16,16 @@
 		<column name="IMEI" type="varchar" size="64" required="true"/>
 	 </table>
 
-    <table name="Message" phpName="Message">
+    <table name="Message" phpName="Message" isCrossRef="true">
         <column name="MessageId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="Text" type="varchar" size="1024" required="true" />
         <column name="RoomUserId" type="integer" required="true"/>
         <column name="PostTime" type="timestamp" required="true"/>
         <foreign-key foreignTable="RoomUser">
             <reference local="RoomUserId" foreign="RoomUserId"/>
+        </foreign-key>
+        <foreign-key foreignTable="Room">
+            <reference local="RoomId" foreign="RoomId"/>
         </foreign-key>
     </table>
 
@@ -35,18 +38,6 @@
         <column name="LocationLatitude" type="double" required="true"/>
         <column name="LocationLongitude" type="double" required="true"/>
         <column name="LocationAccuracy" type="integer" required="true"/>
-    </table>
-
-    <table name="MessageStack" phpName="MessageStack" isCrossRef="true">
-        <column name="MessageStackId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
-        <column name="MessageId" type="integer" required="true" />
-        <column name="RoomId" type="integer" required="true" />
-        <foreign-key foreignTable="Message">
-            <reference local="MessageId" foreign="MessageId"/>
-        </foreign-key>
-        <foreign-key foreignTable="Room">
-            <reference local="RoomId" foreign="RoomId"/>
-        </foreign-key>
     </table>
 
     <table name="RoomUser" phpName="RoomUser">
