@@ -4,6 +4,8 @@
     require_once "vendor/autoload.php";
     require_once "generated-conf/config.php";
 
+    RegisteredUserQuery::create()->doDeleteAll();
+    Room::create()->doDeleteAll();
 
     $res = RegisteredUser::CreateUser( "gbps111@gmail.com", "testpass", "imeiimeiimeiimei" );
     if($res)
@@ -11,7 +13,7 @@
     else
         echo "Failed to create user.<br />";
 
-    $newUser = RegisteredUserQuery::create()->findByEmail("gbps111@gmail.com")->find();
+    $newUser = RegisteredUserQuery::create()->findOneByEmail("gbps111@gmail.com");
 
     $res = Room::CreateRoom( $newUser, "Some cool topic", 60000 );
     if($res)
