@@ -1,6 +1,6 @@
 <?php
 
-include "../chatstorm/chatstorm.php";
+include_once "../chatstorm/chatstorm.php";
 
 use Base\RegisteredUser as BaseRegisteredUser;
 use Chatstorm\Validators as Validators;
