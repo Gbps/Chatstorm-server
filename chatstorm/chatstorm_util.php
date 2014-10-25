@@ -14,7 +14,7 @@ namespace Chatstorm
         public static function ReturnJSON( $obj )
         {
             $objJsonArray = json_decode( $obj );
-
+            var_dump($objJsonArray);
             if( $objJsonArray == null ) Util::DieWithJSONError("Return was null.");
 
             $convArray = array( 'success' => true, 'error' => "");
