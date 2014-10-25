@@ -7,8 +7,8 @@
                     <adapter>mysql</adapter>
                     <classname>Propel\Runtime\Connection\ConnectionWrapper</classname>
                     <dsn>mysql:host=localhost;dbname=chatstorm2</dsn>
-                    <user>chatstorm</user>
-                    <password></password>
+                    <user>root</user>
+                    <password>bigguccisosa</password>
                 </connection>
             </connections>
         </database>
