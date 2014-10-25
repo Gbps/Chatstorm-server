@@ -18,7 +18,7 @@ class Room extends BaseRoom
     {
 
         $timeoutDate = new DateTime();
-        $timeoutDate->add( new DateInterval( "P" . $lifetime . "S") );
+        $timeoutDate->add( DateInterval::createFromDateString( $lifetime . " seconds") );
 
         $newRoom = new Room();
         $newRoom->setCreateddate( new DateTime() );
