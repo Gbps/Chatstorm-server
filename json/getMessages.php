@@ -16,7 +16,7 @@
     $returnRoom = RoomQuery::create()->findOneByRoomid( $roomId );
     if( $returnRoom == null )  Util::DieWithJSONError("Could not find room.");
 
-    $messages = $returnRoom->getMessages()->select(array('MessageId', 'Text', 'RoomUserId', 'PostTime'))->toJson();
+    $messages = $returnRoom->getMessages()->toJson();
 
     echo Util::ReturnJSON($messages);
 
