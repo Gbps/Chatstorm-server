@@ -11,10 +11,30 @@ namespace Chatstorm
             die( json_encode( $convArray ) );
         }
 
+        private static function objectToArray($d) {
+            if (is_object($d)) {
+                // Gets the properties of the given object
+                // with get_object_vars function
+                $d = get_object_vars($d);
+            }
+
+            if (is_array($d)) {
+                /*
+                * Return array converted to object
+                * Using __FUNCTION__ (Magic constant)
+                * for recursive call
+                */
+                return array_map(__FUNCTION__, $d);
+            }
+            else {
+                // Return array
+                return $d;
+            }
+        }
         public static function ReturnJSON( $obj )
         {
-            $objJsonArray = json_decode( $obj );
-            var_dump($objJsonArray);
+            $objJsonArray = Util::objectToArray( json_decode( $obj ) );
+
             if( $objJsonArray == null ) Util::DieWithJSONError("Return was null.");
 
             $convArray = array( 'success' => true, 'error' => "");
