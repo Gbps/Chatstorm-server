@@ -5,7 +5,7 @@
     require_once "generated-conf/config.php";
 
     RegisteredUserQuery::create()->doDeleteAll();
-    Room::create()->doDeleteAll();
+    RoomQuery::create()->doDeleteAll();
 
     $res = RegisteredUser::CreateUser( "gbps111@gmail.com", "testpass", "imeiimeiimeiimei" );
     if($res)

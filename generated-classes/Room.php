@@ -14,5 +14,24 @@ use Base\Room as BaseRoom;
  */
 class Room extends BaseRoom
 {
+    public static function CreateRoom( $creator, $topic, $lifetime )
+    {
 
+        $timeoutDate = new DateTime();
+        $timeoutDate->add( new DateInterval( $lifetime . " seconds") );
+
+        $newRoom = new Room();
+        $newRoom->setCreateddate( new DateTime() );
+        $newRoom->setCreator( $creator );
+        $newRoom->setTopic( $topic );
+        $newRoom->setTimeout( $timeoutDate );
+        $newRoom->setRating( 0 );
+        $newRoom->setLocationlatitude( 0 );
+        $newRoom->setLocationaccuracy( 0 );
+        $newRoom->setLocationlongitude( 0 );
+
+        $newRoom->save();
+
+        return true;
+    }
 }
