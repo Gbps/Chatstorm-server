@@ -12,7 +12,6 @@
 		<column name="Rating" type="integer" required="true"/>
 		<column name="LocationLatitude" type="double" required="true"/>
 		<column name="LocationLongitude" type="double" required="true"/>
-		<column name="LocationLongitude" type="double" required="true"/>
 		<column name="LocationAccuracy" type="integer" required="true"/>
 		<column name="IMEI" type="varchar" size="14" required="true"/>
 	 </table>
