@@ -14,5 +14,15 @@ use Base\RoomUser as BaseRoomUser;
  */
 class RoomUser extends BaseRoomUser
 {
+    public static function CreateRoomUser( Room $room, RegisteredUser $user )
+    {
+        $newRoomUser = new RoomUser();
+        $newRoomUser->setVisiblename( "RoomUser" );
+        $newRoomUser->setRegisteredUser( $user );
+        $newRoomUser->setRoom( $room );
+        $newRoomUser->save();
 
+        return $newRoomUser;
+
+    }
 }

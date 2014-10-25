@@ -14,5 +14,20 @@ use Base\Message as BaseMessage;
  */
 class Message extends BaseMessage
 {
+    public static function CreateMessageToRoom( Room $room, RoomUser $creator, $message )
+    {
+        $newMessage = new Message();
+        $newMessage->setText( $message );
+        $newMessage->setRoomuserid( $creator->getRoomuserid() );
+        $newMessage->setRoom( $room );
+        $newMessage->setPosttime( new DateTime() );
 
+        $newMessage->save();
+
+        $room->addMessage( $newMessage );
+
+        $room->save();
+
+        return true;
+    }
 }

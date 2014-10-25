@@ -32,6 +32,6 @@ class Room extends BaseRoom
 
         $newRoom->save();
 
-        return true;
+        return $newRoom;
     }
 }
