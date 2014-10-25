@@ -21,10 +21,9 @@ namespace Chatstorm
             if (is_array($d)) {
                 /*
                 * Return array converted to object
-                * Using __FUNCTION__ (Magic constant)
                 * for recursive call
                 */
-                return array_map(__FUNCTION__, $d);
+                return array_map("Util::objectToArray", $d);
             }
             else {
                 // Return array
