@@ -13,6 +13,8 @@
         isset($_POST['hash']) === false
     ) Util::DieWithJSONError("Argument missing in request.");
 
+    echo $_POST['latitude'] . "<br/>";
+    echo floatval($_POST['latitude']). "<br/>";
     $latitude = floatval($_POST['latitude']);
     $longitude = floatval($_POST['longitude']);
     $accuracy = intval($_POST['accu']);
