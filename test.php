@@ -4,8 +4,8 @@
     require_once "vendor/autoload.php";
     require_once "generated-conf/config.php";
 
-    RegisteredUserQuery::create()->doDeleteAll();
     RoomQuery::create()->doDeleteAll();
+    RegisteredUserQuery::create()->doDeleteAll();
 
     $res = RegisteredUser::CreateUser( "gbps111@gmail.com", "testpass", "imeiimeiimeiimei" );
     if($res)
