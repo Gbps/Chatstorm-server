@@ -8,6 +8,9 @@
 
     if( isset($_POST['hash']) === false) Util::DieWithJSONError("Argument missing in request.");
 
-    $newUser = RegisteredUser::CreateUser( "", "", $_POST['hash']);
+    $res = RegisteredUser::CreateUser( "test@test.com", "123141412", $_POST['hash']);
 
-    return Util::ReturnJSONSuccess();
+    if( $res )
+        return Util::ReturnJSONSuccess();
+    else
+        return Util::DieWithJSONError("Could not create new user.");
