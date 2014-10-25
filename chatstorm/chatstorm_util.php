@@ -14,7 +14,7 @@ namespace Chatstorm
         public static function ReturnJSON( $obj )
         {
             $convArray = array( 'success' => true, 'error' => "");
-            $newArray = array_merge( $obj, $convArray );
+            $newArray = array_merge( json_decode( $obj ), $convArray );
 
             return json_encode( $newArray );
         }

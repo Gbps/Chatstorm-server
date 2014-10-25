@@ -11,6 +11,6 @@
     $res = RegisteredUser::CreateUser( "test@test.com", "123141412", $_POST['hash']);
 
     if( $res )
-        return Util::ReturnJSONSuccess();
+        echo Util::ReturnJSONSuccess();
     else
-        return Util::DieWithJSONError("Could not create new user.");
+        Util::DieWithJSONError("Could not create new user.");

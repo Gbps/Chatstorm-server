@@ -33,5 +33,5 @@
 
     $user->save();
 
-    return Util::ReturnJSONSuccess();
+    echo Util::ReturnJSONSuccess();
 
