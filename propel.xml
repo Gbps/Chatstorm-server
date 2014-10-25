@@ -9,7 +9,6 @@
                     <dsn>mysql:host=localhost;dbname=chatstorm</dsn>
                     <user>chatstorm</user>
                     <password></password>
-                    <attributes></attributes>
                 </connection>
             </connections>
         </database>
