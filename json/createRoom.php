@@ -17,10 +17,9 @@ use Chatstorm\Util as Util;
 
     if( $creatingUser == null ) Util::DieWithJSONError("Could not find registered user.");
 
-    $creatingUser->
-    $res = RegisteredUser::CreateUser( "test@test.com", "123141412", $_POST['hash']);
+    $res = Room::CreateRoom( $creatingUser, $roomTopic, 86400);
 
-if( $res )
-    echo Util::ReturnJSONSuccess();
-else
-    Util::DieWithJSONError("Could not create new user.");
+    if( $res )
+        echo Util::ReturnJSONSuccess();
+    else
+        Util::DieWithJSONError("Could not create new room.");

@@ -1,5 +1,9 @@
 <?php
 
+include_once __DIR__."/../chatstorm/chatstorm.php";
+
+use Chatstorm\Validators as Validators;
+use Chatstorm\Util as Util;
 use Base\Room as BaseRoom;
 
 /**
@@ -16,6 +20,7 @@ class Room extends BaseRoom
 {
     public static function CreateRoom( $creator, $topic, $lifetime )
     {
+        if( !Validators::ValidateTopic($topic) ) Util::DieWithJSONError("Invalid topic format.");
 
         $timeoutDate = new DateTime();
         $timeoutDate->add( DateInterval::createFromDateString( $lifetime . " seconds") );

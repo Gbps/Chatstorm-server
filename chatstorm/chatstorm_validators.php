@@ -26,6 +26,14 @@ namespace Chatstorm
 
             return true;
         }
+
+        public static function ValidateTopic( $topic )
+        {
+            // Length <124
+            if( strlen( topic ) > 124 ) return false;
+
+            return true;
+        }
     }
 
 
