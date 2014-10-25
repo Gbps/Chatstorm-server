@@ -1,7 +1,7 @@
 <?php
 
-    include "include/includes.php";
-    include "vendor/autoload.php";
+    require_once "chatstorm/chatstorm.php";
+    require_once "vendor/autoload.php";
 
     $res = RegisteredUser::CreateUser( "test@test.com", "testpass", "imeiimeiimeiimei" );
 

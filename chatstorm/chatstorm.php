@@ -1,6 +1,6 @@
 <?php
 
-    require_once "chatstorm_validators.php";
-    require_once "chatstorm_util.php";
+    require_once __DIR__."/chatstorm_validators.php";
+    require_once __DIR__."/chatstorm_util.php";
 
 ?>
