@@ -1,5 +1,5 @@
 <?php
-    echo "hello";
+    echo "hello"
     include "include/includes.php";
 
     $res = RegisteredUser::CreateUser( "test@test.com", "testpass", "imeiimeiimeiimei" );
