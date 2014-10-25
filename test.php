@@ -11,7 +11,7 @@
     else
         echo "Failed to create user.<br />";
 
-    $newUser = RegisteredUserQuery::create()->findByEmail("gbps111@gmail.com")->limit(1)->find();
+    $newUser = RegisteredUserQuery::create()->findByEmail("gbps111@gmail.com")->find();
 
     $res = Room::CreateRoom( $newUser, "Some cool topic", 60000 );
     if($res)
