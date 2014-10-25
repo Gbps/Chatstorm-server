@@ -7,6 +7,6 @@
     $currentDate = new DateTime();
     $formatDate = $currentDate->format( "Y-m-d H:i:s" );
     echo RoomQuery::create()
-        ->filterByTimeout(array( "max" => $currentDate) )
+        ->filterByTimeout(array( "min" => $currentDate) )
         ->find()
         ->toJson();
