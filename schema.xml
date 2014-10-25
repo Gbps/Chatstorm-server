@@ -7,13 +7,13 @@
 	    <column name="PasswordHash" type="varchar" size="64" required="true"/>
 	    <column name="ActivationKey" type="varchar" size="25" required="true"/>
 		<column name="RegisteredDate" type="timestamp" required="true"/>
-		<column name="ActivationDate" type="timestamp" required="true"/>
+		<column name="ActivationDate" type="timestamp" />
 		<column name="Activated" type="boolean" required="true"/>
 		<column name="Rating" type="integer" required="true"/>
 		<column name="LocationLatitude" type="double" required="true"/>
 		<column name="LocationLongitude" type="double" required="true"/>
 		<column name="LocationAccuracy" type="integer" required="true"/>
-		<column name="IMEI" type="varchar" size="14" required="true"/>
+		<column name="IMEI" type="varchar" size="64" required="true"/>
 	 </table>
 
 </database>

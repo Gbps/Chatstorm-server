@@ -1,6 +1,10 @@
 <?php
 
+include "../chatstorm/chatstorm.php";
+
 use Base\RegisteredUser as BaseRegisteredUser;
+use Chatstorm\Validators as Validators;
+use Chatstorm\Util as Util;
 
 /**
  * Skeleton subclass for representing a row from the 'RegisteredUser' table.
@@ -14,5 +18,29 @@ use Base\RegisteredUser as BaseRegisteredUser;
  */
 class RegisteredUser extends BaseRegisteredUser
 {
+    public static function CreateUser( $email, $password, $imei )
+    {
+        if( !Validators::ValidateEmail( $email ) ) return false;
+        if( !Validators::ValidatePassword( $password ) ) return false;
 
+        $passwordHash = hash( "sha256", $password );
+        $imeiHash = hash( "sha256", $imei );
+
+        $newUser = new RegisteredUser();
+        $newUser->setEmail( $email );
+        $newUser->setPasswordhash( $passwordHash );
+        $newUser->setActivationkey( Util::GenerateActivationKey() );
+        $newUser->setRegistereddate( new DateTime() );
+        $newUser->setActivationdate( null );
+        $newUser->setActivated( false );
+        $newUser->setRating( 0 );
+        $newUser->setLocationlatitude( 0.0 );
+        $newUser->setLocationlongitude( 0.0 );
+        $newUser->setLocationaccuracy( 0 );
+        $newUser->setImei( $imeiHash );
+
+        $newUser->save();
+
+        return true;
+    }
 }
