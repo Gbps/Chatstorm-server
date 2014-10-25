@@ -13,8 +13,12 @@ namespace Chatstorm
 
         public static function ReturnJSON( $obj )
         {
+            $objJsonArray = json_decode( $obj );
+
+            if( $objJsonArray == null ) Util::DieWithJSONError("Return was null.");
+
             $convArray = array( 'success' => true, 'error' => "");
-            $newArray = array_merge( json_decode( $obj ), $convArray );
+            $newArray = array_merge( $objJsonArray, $convArray );
 
             return json_encode( $newArray );
         }
