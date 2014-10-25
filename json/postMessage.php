@@ -23,7 +23,7 @@
     if( $registeredUser == null ) Util::DieWithJSONError("Could not find registered user.");
 
     $roomUser = RoomUserQuery::create()
-        ->findByRoomid( $room->getRoomId() )
+        ->filterByRoomId( $room->getRoomId() )
         ->findOneByRegistereduserid( $registeredUser->getRegistereduserid() );
 
     if( $roomUser == null )
