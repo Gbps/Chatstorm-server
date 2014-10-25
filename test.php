@@ -1,9 +1,8 @@
 <?php
 
     include "include/includes.php";
-
-    var_dump( RegisteredUser );
-
+    include "vendor/autoload.php";
+    
     $res = RegisteredUser::CreateUser( "test@test.com", "testpass", "imeiimeiimeiimei" );
 
     if($res)
