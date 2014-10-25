@@ -1,8 +1,8 @@
 <?php
 
-    require_once "chatstorm/chatstorm.php";
-    require_once "vendor/autoload.php";
-    require_once "generated-conf/config.php";
+    require_once "../chatstorm/chatstorm.php";
+    require_once "../vendor/autoload.php";
+    require_once "../generated-conf/config.php";
 
     RoomQuery::create()->doDeleteAll();
     RegisteredUserQuery::create()->doDeleteAll();
