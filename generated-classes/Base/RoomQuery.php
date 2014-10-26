@@ -733,6 +733,23 @@ abstract class RoomQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related RegisteredUser object
+     * using the RoomUser table as cross reference
+     *
+     * @param RegisteredUser $registeredUser the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildRoomQuery The current query, for fluid interface
+     */
+    public function filterByRegisteredUser($registeredUser, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useRoomUserQuery()
+            ->filterByRegisteredUser($registeredUser, $comparison)
+            ->endUse();
+    }
+
+    /**
      * Exclude object from result
      *
      * @param   ChildRoom $room Object to remove from the list of results

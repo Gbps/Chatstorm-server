@@ -200,7 +200,8 @@ class RegisteredUserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('RoomUser', '\\RoomUser', RelationMap::ONE_TO_MANY, array('RegisteredUserId' => 'RegisteredUserId', ), null, null, 'RoomUsers');
+        $this->addRelation('RoomUser', '\\RoomUser', RelationMap::ONE_TO_MANY, array('RegisteredUserId' => 'RoomUserId', ), null, null, 'RoomUsers');
+        $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_MANY, array(), null, null, 'Rooms');
     } // buildRelations()
 
     /**

@@ -712,7 +712,7 @@ abstract class RegisteredUserQuery extends ModelCriteria
     {
         if ($roomUser instanceof \RoomUser) {
             return $this
-                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $roomUser->getRegistereduserid(), $comparison);
+                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $roomUser->getRoomuserid(), $comparison);
         } elseif ($roomUser instanceof ObjectCollection) {
             return $this
                 ->useRoomUserQuery()
@@ -771,6 +771,23 @@ abstract class RegisteredUserQuery extends ModelCriteria
         return $this
             ->joinRoomUser($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'RoomUser', '\RoomUserQuery');
+    }
+
+    /**
+     * Filter the query by a related Room object
+     * using the RoomUser table as cross reference
+     *
+     * @param Room $room the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildRegisteredUserQuery The current query, for fluid interface
+     */
+    public function filterByRoom($room, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->useRoomUserQuery()
+            ->filterByRoom($room, $comparison)
+            ->endUse();
     }
 
     /**

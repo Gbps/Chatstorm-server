@@ -40,11 +40,7 @@ CREATE TABLE `Message`
     `RoomId` INTEGER NOT NULL,
     `PostTime` DATETIME NOT NULL,
     PRIMARY KEY (`MessageId`),
-    INDEX `Message_fi_041b9b` (`RoomUserId`),
     INDEX `Message_fi_41e335` (`RoomId`),
-    CONSTRAINT `Message_fk_041b9b`
-        FOREIGN KEY (`RoomUserId`)
-        REFERENCES `RoomUser` (`RoomUserId`),
     CONSTRAINT `Message_fk_41e335`
         FOREIGN KEY (`RoomId`)
         REFERENCES `Room` (`RoomId`)
@@ -81,11 +77,10 @@ CREATE TABLE `RoomUser`
     `VisibleName` VARCHAR(32) NOT NULL,
     `RegisteredUserId` INTEGER NOT NULL,
     `RoomId` INTEGER NOT NULL,
-    PRIMARY KEY (`RoomUserId`),
-    INDEX `RoomUser_fi_bb0d7a` (`RegisteredUserId`),
+    PRIMARY KEY (`RoomUserId`,`RoomId`),
     INDEX `RoomUser_fi_41e335` (`RoomId`),
-    CONSTRAINT `RoomUser_fk_bb0d7a`
-        FOREIGN KEY (`RegisteredUserId`)
+    CONSTRAINT `RoomUser_fk_f4d663`
+        FOREIGN KEY (`RoomUserId`)
         REFERENCES `RegisteredUser` (`RegisteredUserId`),
     CONSTRAINT `RoomUser_fk_41e335`
         FOREIGN KEY (`RoomId`)

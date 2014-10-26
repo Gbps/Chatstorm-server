@@ -42,11 +42,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomUserQuery rightJoinRoom($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Room relation
  * @method     ChildRoomUserQuery innerJoinRoom($relationAlias = null) Adds a INNER JOIN clause to the query using the Room relation
  *
- * @method     ChildRoomUserQuery leftJoinMessage($relationAlias = null) Adds a LEFT JOIN clause to the query using the Message relation
- * @method     ChildRoomUserQuery rightJoinMessage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Message relation
- * @method     ChildRoomUserQuery innerJoinMessage($relationAlias = null) Adds a INNER JOIN clause to the query using the Message relation
- *
- * @method     \RegisteredUserQuery|\RoomQuery|\MessageQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \RegisteredUserQuery|\RoomQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRoomUser findOne(ConnectionInterface $con = null) Return the first ChildRoomUser matching the query
  * @method     ChildRoomUser findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRoomUser matching the query, or a new ChildRoomUser object populated from the query conditions when no match is found
@@ -109,10 +105,10 @@ abstract class RoomUserQuery extends ModelCriteria
      * Go fast if the query is untouched.
      *
      * <code>
-     * $obj  = $c->findPk(12, $con);
+     * $obj = $c->findPk(array(12, 34), $con);
      * </code>
      *
-     * @param mixed $key Primary key to use for the query
+     * @param array[$RoomUserId, $RoomId] $key Primary key to use for the query
      * @param ConnectionInterface $con an optional connection object
      *
      * @return ChildRoomUser|array|mixed the result, formatted by the current formatter
@@ -122,7 +118,7 @@ abstract class RoomUserQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = RoomUserTableMap::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = RoomUserTableMap::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -152,10 +148,11 @@ abstract class RoomUserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, RoomId FROM RoomUser WHERE RoomUserId = :p0';
+        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, RoomId FROM RoomUser WHERE RoomUserId = :p0 AND RoomId = :p1';
         try {
             $stmt = $con->prepare($sql);
-            $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
+            $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
+            $stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -166,7 +163,7 @@ abstract class RoomUserQuery extends ModelCriteria
             /** @var ChildRoomUser $obj */
             $obj = new ChildRoomUser();
             $obj->hydrate($row);
-            RoomUserTableMap::addInstanceToPool($obj, (string) $key);
+            RoomUserTableMap::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1])));
         }
         $stmt->closeCursor();
 
@@ -195,7 +192,7 @@ abstract class RoomUserQuery extends ModelCriteria
     /**
      * Find objects by primary key
      * <code>
-     * $objs = $c->findPks(array(12, 56, 832), $con);
+     * $objs = $c->findPks(array(array(12, 56), array(832, 123), array(123, 456)), $con);
      * </code>
      * @param     array $keys Primary keys to use for the query
      * @param     ConnectionInterface $con an optional connection object
@@ -225,8 +222,10 @@ abstract class RoomUserQuery extends ModelCriteria
      */
     public function filterByPrimaryKey($key)
     {
+        $this->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $key[0], Criteria::EQUAL);
+        $this->addUsingAlias(RoomUserTableMap::COL_ROOMID, $key[1], Criteria::EQUAL);
 
-        return $this->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $key, Criteria::EQUAL);
+        return $this;
     }
 
     /**
@@ -238,8 +237,17 @@ abstract class RoomUserQuery extends ModelCriteria
      */
     public function filterByPrimaryKeys($keys)
     {
+        if (empty($keys)) {
+            return $this->add(null, '1<>1', Criteria::CUSTOM);
+        }
+        foreach ($keys as $key) {
+            $cton0 = $this->getNewCriterion(RoomUserTableMap::COL_ROOMUSERID, $key[0], Criteria::EQUAL);
+            $cton1 = $this->getNewCriterion(RoomUserTableMap::COL_ROOMID, $key[1], Criteria::EQUAL);
+            $cton0->addAnd($cton1);
+            $this->addOr($cton0);
+        }
 
-        return $this->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $keys, Criteria::IN);
+        return $this;
     }
 
     /**
@@ -251,6 +259,8 @@ abstract class RoomUserQuery extends ModelCriteria
      * $query->filterByRoomuserid(array(12, 34)); // WHERE RoomUserId IN (12, 34)
      * $query->filterByRoomuserid(array('min' => 12)); // WHERE RoomUserId > 12
      * </code>
+     *
+     * @see       filterByRegisteredUser()
      *
      * @param     mixed $roomuserid The value to use as filter.
      *              Use scalar values for equality.
@@ -321,8 +331,6 @@ abstract class RoomUserQuery extends ModelCriteria
      * $query->filterByRegistereduserid(array(12, 34)); // WHERE RegisteredUserId IN (12, 34)
      * $query->filterByRegistereduserid(array('min' => 12)); // WHERE RegisteredUserId > 12
      * </code>
-     *
-     * @see       filterByRegisteredUser()
      *
      * @param     mixed $registereduserid The value to use as filter.
      *              Use scalar values for equality.
@@ -412,14 +420,14 @@ abstract class RoomUserQuery extends ModelCriteria
     {
         if ($registeredUser instanceof \RegisteredUser) {
             return $this
-                ->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $registeredUser->getRegistereduserid(), $comparison);
+                ->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $registeredUser->getRegistereduserid(), $comparison);
         } elseif ($registeredUser instanceof ObjectCollection) {
             if (null === $comparison) {
                 $comparison = Criteria::IN;
             }
 
             return $this
-                ->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
+                ->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
         } else {
             throw new PropelException('filterByRegisteredUser() only accepts arguments of type \RegisteredUser or Collection');
         }
@@ -553,79 +561,6 @@ abstract class RoomUserQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related \Message object
-     *
-     * @param \Message|ObjectCollection $message  the related object to use as filter
-     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ChildRoomUserQuery The current query, for fluid interface
-     */
-    public function filterByMessage($message, $comparison = null)
-    {
-        if ($message instanceof \Message) {
-            return $this
-                ->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $message->getRoomuserid(), $comparison);
-        } elseif ($message instanceof ObjectCollection) {
-            return $this
-                ->useMessageQuery()
-                ->filterByPrimaryKeys($message->getPrimaryKeys())
-                ->endUse();
-        } else {
-            throw new PropelException('filterByMessage() only accepts arguments of type \Message or Collection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the Message relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return $this|ChildRoomUserQuery The current query, for fluid interface
-     */
-    public function joinMessage($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Message');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'Message');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the Message relation Message object
-     *
-     * @see useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return \MessageQuery A secondary query class using the current class as primary query
-     */
-    public function useMessageQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        return $this
-            ->joinMessage($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Message', '\MessageQuery');
-    }
-
-    /**
      * Exclude object from result
      *
      * @param   ChildRoomUser $roomUser Object to remove from the list of results
@@ -635,7 +570,9 @@ abstract class RoomUserQuery extends ModelCriteria
     public function prune($roomUser = null)
     {
         if ($roomUser) {
-            $this->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $roomUser->getRoomuserid(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond0', $this->getAliasedColName(RoomUserTableMap::COL_ROOMUSERID), $roomUser->getRoomuserid(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond1', $this->getAliasedColName(RoomUserTableMap::COL_ROOMID), $roomUser->getRoomid(), Criteria::NOT_EQUAL);
+            $this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
         }
 
         return $this;

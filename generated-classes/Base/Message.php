@@ -5,8 +5,6 @@ namespace Base;
 use \MessageQuery as ChildMessageQuery;
 use \Room as ChildRoom;
 use \RoomQuery as ChildRoomQuery;
-use \RoomUser as ChildRoomUser;
-use \RoomUserQuery as ChildRoomUserQuery;
 use \DateTime;
 use \Exception;
 use \PDO;
@@ -94,11 +92,6 @@ abstract class Message implements ActiveRecordInterface
      * @var        \DateTime
      */
     protected $posttime;
-
-    /**
-     * @var        ChildRoomUser
-     */
-    protected $aRoomUser;
 
     /**
      * @var        ChildRoom
@@ -447,10 +440,6 @@ abstract class Message implements ActiveRecordInterface
             $this->modifiedColumns[MessageTableMap::COL_ROOMUSERID] = true;
         }
 
-        if ($this->aRoomUser !== null && $this->aRoomUser->getRoomuserid() !== $v) {
-            $this->aRoomUser = null;
-        }
-
         return $this;
     } // setRoomuserid()
 
@@ -581,9 +570,6 @@ abstract class Message implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aRoomUser !== null && $this->roomuserid !== $this->aRoomUser->getRoomuserid()) {
-            $this->aRoomUser = null;
-        }
         if ($this->aRoom !== null && $this->roomid !== $this->aRoom->getRoomid()) {
             $this->aRoom = null;
         }
@@ -626,7 +612,6 @@ abstract class Message implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aRoomUser = null;
             $this->aRoom = null;
         } // if (deep)
     }
@@ -731,13 +716,6 @@ abstract class Message implements ActiveRecordInterface
             // were passed to this object by their corresponding set
             // method.  This object relates to these object(s) by a
             // foreign key reference.
-
-            if ($this->aRoomUser !== null) {
-                if ($this->aRoomUser->isModified() || $this->aRoomUser->isNew()) {
-                    $affectedRows += $this->aRoomUser->save($con);
-                }
-                $this->setRoomUser($this->aRoomUser);
-            }
 
             if ($this->aRoom !== null) {
                 if ($this->aRoom->isModified() || $this->aRoom->isNew()) {
@@ -943,21 +921,6 @@ abstract class Message implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aRoomUser) {
-
-                switch ($keyType) {
-                    case TableMap::TYPE_CAMELNAME:
-                        $key = 'roomUser';
-                        break;
-                    case TableMap::TYPE_FIELDNAME:
-                        $key = 'RoomUser';
-                        break;
-                    default:
-                        $key = 'RoomUser';
-                }
-
-                $result[$key] = $this->aRoomUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
-            }
             if (null !== $this->aRoom) {
 
                 switch ($keyType) {
@@ -1232,57 +1195,6 @@ abstract class Message implements ActiveRecordInterface
     }
 
     /**
-     * Declares an association between this object and a ChildRoomUser object.
-     *
-     * @param  ChildRoomUser $v
-     * @return $this|\Message The current object (for fluent API support)
-     * @throws PropelException
-     */
-    public function setRoomUser(ChildRoomUser $v = null)
-    {
-        if ($v === null) {
-            $this->setRoomuserid(NULL);
-        } else {
-            $this->setRoomuserid($v->getRoomuserid());
-        }
-
-        $this->aRoomUser = $v;
-
-        // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildRoomUser object, it will not be re-added.
-        if ($v !== null) {
-            $v->addMessage($this);
-        }
-
-
-        return $this;
-    }
-
-
-    /**
-     * Get the associated ChildRoomUser object
-     *
-     * @param  ConnectionInterface $con Optional Connection object.
-     * @return ChildRoomUser The associated ChildRoomUser object.
-     * @throws PropelException
-     */
-    public function getRoomUser(ConnectionInterface $con = null)
-    {
-        if ($this->aRoomUser === null && ($this->roomuserid !== null)) {
-            $this->aRoomUser = ChildRoomUserQuery::create()->findPk($this->roomuserid, $con);
-            /* The following can be used additionally to
-                guarantee the related object contains a reference
-                to this object.  This level of coupling may, however, be
-                undesirable since it could result in an only partially populated collection
-                in the referenced object.
-                $this->aRoomUser->addMessages($this);
-             */
-        }
-
-        return $this->aRoomUser;
-    }
-
-    /**
      * Declares an association between this object and a ChildRoom object.
      *
      * @param  ChildRoom $v
@@ -1340,9 +1252,6 @@ abstract class Message implements ActiveRecordInterface
      */
     public function clear()
     {
-        if (null !== $this->aRoomUser) {
-            $this->aRoomUser->removeMessage($this);
-        }
         if (null !== $this->aRoom) {
             $this->aRoom->removeMessage($this);
         }
@@ -1371,7 +1280,6 @@ abstract class Message implements ActiveRecordInterface
         if ($deep) {
         } // if ($deep)
 
-        $this->aRoomUser = null;
         $this->aRoom = null;
     }
 

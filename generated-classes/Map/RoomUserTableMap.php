@@ -140,11 +140,12 @@ class RoomUserTableMap extends TableMap
         $this->setClassName('\\RoomUser');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
+        $this->setIsCrossRef(true);
         // columns
-        $this->addPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER', true, null, null);
+        $this->addForeignPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER' , 'RegisteredUser', 'RegisteredUserId', true, null, null);
         $this->addColumn('VisibleName', 'Visiblename', 'VARCHAR', true, 32, null);
-        $this->addForeignKey('RegisteredUserId', 'Registereduserid', 'INTEGER', 'RegisteredUser', 'RegisteredUserId', true, null, null);
-        $this->addForeignKey('RoomId', 'Roomid', 'INTEGER', 'Room', 'RoomId', true, null, null);
+        $this->addColumn('RegisteredUserId', 'Registereduserid', 'INTEGER', true, null, null);
+        $this->addForeignPrimaryKey('RoomId', 'Roomid', 'INTEGER' , 'Room', 'RoomId', true, null, null);
     } // initialize()
 
     /**
@@ -152,10 +153,62 @@ class RoomUserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('RegisteredUserId' => 'RegisteredUserId', ), null, null);
+        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('RoomUserId' => 'RegisteredUserId', ), null, null);
         $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_ONE, array('RoomId' => 'RoomId', ), null, null);
-        $this->addRelation('Message', '\\Message', RelationMap::ONE_TO_MANY, array('RoomUserId' => 'RoomUserId', ), null, null, 'Messages');
     } // buildRelations()
+
+    /**
+     * Adds an object to the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database. In some cases you may need to explicitly add objects
+     * to the cache in order to ensure that the same objects are always returned by find*()
+     * and findPk*() calls.
+     *
+     * @param \RoomUser $obj A \RoomUser object.
+     * @param string $key             (optional) key to use for instance map (for performance boost if key was already calculated externally).
+     */
+    public static function addInstanceToPool($obj, $key = null)
+    {
+        if (Propel::isInstancePoolingEnabled()) {
+            if (null === $key) {
+                $key = serialize(array((string) $obj->getRoomuserid(), (string) $obj->getRoomid()));
+            } // if key === null
+            self::$instances[$key] = $obj;
+        }
+    }
+
+    /**
+     * Removes an object from the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database.  In some cases -- especially when you override doDelete
+     * methods in your stub classes -- you may need to explicitly remove objects
+     * from the cache in order to prevent returning objects that no longer exist.
+     *
+     * @param mixed $value A \RoomUser object or a primary key value.
+     */
+    public static function removeInstanceFromPool($value)
+    {
+        if (Propel::isInstancePoolingEnabled() && null !== $value) {
+            if (is_object($value) && $value instanceof \RoomUser) {
+                $key = serialize(array((string) $value->getRoomuserid(), (string) $value->getRoomid()));
+
+            } elseif (is_array($value) && count($value) === 2) {
+                // assume we've been passed a primary key";
+                $key = serialize(array((string) $value[0], (string) $value[1]));
+            } elseif ($value instanceof Criteria) {
+                self::$instances = [];
+
+                return;
+            } else {
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or \RoomUser object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value, true)));
+                throw $e;
+            }
+
+            unset(self::$instances[$key]);
+        }
+    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -173,11 +226,11 @@ class RoomUserTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)];
+        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)]));
     }
 
     /**
@@ -194,11 +247,20 @@ class RoomUserTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (int) $row[
+            $pks = [];
+
+        $pks[] = (int) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
                 : self::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)
         ];
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 3 + $offset
+                : self::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+
+        return $pks;
     }
 
     /**
@@ -358,7 +420,17 @@ class RoomUserTableMap extends TableMap
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
             $criteria = new Criteria(RoomUserTableMap::DATABASE_NAME);
-            $criteria->add(RoomUserTableMap::COL_ROOMUSERID, (array) $values, Criteria::IN);
+            // primary key is composite; we therefore, expect
+            // the primary key passed to be an array of pkey values
+            if (count($values) == count($values, COUNT_RECURSIVE)) {
+                // array is not multi-dimensional
+                $values = array($values);
+            }
+            foreach ($values as $value) {
+                $criterion = $criteria->getNewCriterion(RoomUserTableMap::COL_ROOMUSERID, $value[0]);
+                $criterion->addAnd($criteria->getNewCriterion(RoomUserTableMap::COL_ROOMID, $value[1]));
+                $criteria->addOr($criterion);
+            }
         }
 
         $query = RoomUserQuery::create()->mergeWith($criteria);
