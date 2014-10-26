@@ -35,7 +35,7 @@ use Chatstorm\Util as Util;
 
     if( $rating != -1 && $rating != 1  ) Util::DieWithJSONError("Invalid rating.");
 
-    if( $roomUser->getHasvoted() === false )  Util::DieWithJSONError("User already voted.");
+    if( $roomUser->getHasvoted() === true )  Util::DieWithJSONError("User already voted.");
 
     $room->setRating( $room->getRating() + $rating);
 
