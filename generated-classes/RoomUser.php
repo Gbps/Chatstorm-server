@@ -23,6 +23,8 @@ class RoomUser extends BaseRoomUser
 
         $randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
+        echo $randomFind;
+
         return $randomFind;
 
     }
@@ -35,6 +37,8 @@ class RoomUser extends BaseRoomUser
 
         $randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
+        echo $randomFind;
+        
         return $randomFind;
 
     }
