@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \RegisteredUser;
-use \RegisteredUserQuery;
+use \Room;
+use \RoomQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'RegisteredUser' table.
+ * This class defines the structure of the 'Room' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class RegisteredUserTableMap extends TableMap
+class RoomTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class RegisteredUserTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.RegisteredUserTableMap';
+    const CLASS_NAME = '.Map.RoomTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class RegisteredUserTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'RegisteredUser';
+    const TABLE_NAME = 'Room';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\RegisteredUser';
+    const OM_CLASS = '\\Room';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'RegisteredUser';
+    const CLASS_DEFAULT = 'Room';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 12;
+    const NUM_COLUMNS = 9;
 
     /**
      * The number of lazy-loaded columns
@@ -69,67 +69,52 @@ class RegisteredUserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 12;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /**
-     * the column name for the RegisteredUserId field
+     * the column name for the RoomId field
      */
-    const COL_REGISTEREDUSERID = 'RegisteredUser.RegisteredUserId';
+    const COL_ROOMID = 'Room.RoomId';
 
     /**
-     * the column name for the Email field
+     * the column name for the CreatedDate field
      */
-    const COL_EMAIL = 'RegisteredUser.Email';
+    const COL_CREATEDDATE = 'Room.CreatedDate';
 
     /**
-     * the column name for the PasswordHash field
+     * the column name for the Timeout field
      */
-    const COL_PASSWORDHASH = 'RegisteredUser.PasswordHash';
+    const COL_TIMEOUT = 'Room.Timeout';
 
     /**
-     * the column name for the ActivationKey field
+     * the column name for the MessageStackId field
      */
-    const COL_ACTIVATIONKEY = 'RegisteredUser.ActivationKey';
+    const COL_MESSAGESTACKID = 'Room.MessageStackId';
 
     /**
-     * the column name for the RegisteredDate field
+     * the column name for the RoomUsersId field
      */
-    const COL_REGISTEREDDATE = 'RegisteredUser.RegisteredDate';
-
-    /**
-     * the column name for the ActivationDate field
-     */
-    const COL_ACTIVATIONDATE = 'RegisteredUser.ActivationDate';
-
-    /**
-     * the column name for the Activated field
-     */
-    const COL_ACTIVATED = 'RegisteredUser.Activated';
+    const COL_ROOMUSERSID = 'Room.RoomUsersId';
 
     /**
      * the column name for the Rating field
      */
-    const COL_RATING = 'RegisteredUser.Rating';
+    const COL_RATING = 'Room.Rating';
 
     /**
      * the column name for the LocationLatitude field
      */
-    const COL_LOCATIONLATITUDE = 'RegisteredUser.LocationLatitude';
+    const COL_LOCATIONLATITUDE = 'Room.LocationLatitude';
 
     /**
      * the column name for the LocationLongitude field
      */
-    const COL_LOCATIONLONGITUDE = 'RegisteredUser.LocationLongitude';
+    const COL_LOCATIONLONGITUDE = 'Room.LocationLongitude';
 
     /**
      * the column name for the LocationAccuracy field
      */
-    const COL_LOCATIONACCURACY = 'RegisteredUser.LocationAccuracy';
-
-    /**
-     * the column name for the IMEI field
-     */
-    const COL_IMEI = 'RegisteredUser.IMEI';
+    const COL_LOCATIONACCURACY = 'Room.LocationAccuracy';
 
     /**
      * The default string format for model objects of the related table
@@ -143,11 +128,11 @@ class RegisteredUserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Registereduserid', 'Email', 'Passwordhash', 'Activationkey', 'Registereddate', 'Activationdate', 'Activated', 'Rating', 'Locationlatitude', 'Locationlongitude', 'Locationaccuracy', 'Imei', ),
-        self::TYPE_CAMELNAME     => array('registereduserid', 'email', 'passwordhash', 'activationkey', 'registereddate', 'activationdate', 'activated', 'rating', 'locationlatitude', 'locationlongitude', 'locationaccuracy', 'imei', ),
-        self::TYPE_COLNAME       => array(RegisteredUserTableMap::COL_REGISTEREDUSERID, RegisteredUserTableMap::COL_EMAIL, RegisteredUserTableMap::COL_PASSWORDHASH, RegisteredUserTableMap::COL_ACTIVATIONKEY, RegisteredUserTableMap::COL_REGISTEREDDATE, RegisteredUserTableMap::COL_ACTIVATIONDATE, RegisteredUserTableMap::COL_ACTIVATED, RegisteredUserTableMap::COL_RATING, RegisteredUserTableMap::COL_LOCATIONLATITUDE, RegisteredUserTableMap::COL_LOCATIONLONGITUDE, RegisteredUserTableMap::COL_LOCATIONACCURACY, RegisteredUserTableMap::COL_IMEI, ),
-        self::TYPE_FIELDNAME     => array('RegisteredUserId', 'Email', 'PasswordHash', 'ActivationKey', 'RegisteredDate', 'ActivationDate', 'Activated', 'Rating', 'LocationLatitude', 'LocationLongitude', 'LocationAccuracy', 'IMEI', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, )
+        self::TYPE_PHPNAME       => array('Roomid', 'Createddate', 'Timeout', 'Messagestackid', 'Roomusersid', 'Rating', 'Locationlatitude', 'Locationlongitude', 'Locationaccuracy', ),
+        self::TYPE_CAMELNAME     => array('roomid', 'createddate', 'timeout', 'messagestackid', 'roomusersid', 'rating', 'locationlatitude', 'locationlongitude', 'locationaccuracy', ),
+        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID, RoomTableMap::COL_CREATEDDATE, RoomTableMap::COL_TIMEOUT, RoomTableMap::COL_MESSAGESTACKID, RoomTableMap::COL_ROOMUSERSID, RoomTableMap::COL_RATING, RoomTableMap::COL_LOCATIONLATITUDE, RoomTableMap::COL_LOCATIONLONGITUDE, RoomTableMap::COL_LOCATIONACCURACY, ),
+        self::TYPE_FIELDNAME     => array('RoomId', 'CreatedDate', 'Timeout', 'MessageStackId', 'RoomUsersId', 'Rating', 'LocationLatitude', 'LocationLongitude', 'LocationAccuracy', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -157,11 +142,11 @@ class RegisteredUserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Registereduserid' => 0, 'Email' => 1, 'Passwordhash' => 2, 'Activationkey' => 3, 'Registereddate' => 4, 'Activationdate' => 5, 'Activated' => 6, 'Rating' => 7, 'Locationlatitude' => 8, 'Locationlongitude' => 9, 'Locationaccuracy' => 10, 'Imei' => 11, ),
-        self::TYPE_CAMELNAME     => array('registereduserid' => 0, 'email' => 1, 'passwordhash' => 2, 'activationkey' => 3, 'registereddate' => 4, 'activationdate' => 5, 'activated' => 6, 'rating' => 7, 'locationlatitude' => 8, 'locationlongitude' => 9, 'locationaccuracy' => 10, 'imei' => 11, ),
-        self::TYPE_COLNAME       => array(RegisteredUserTableMap::COL_REGISTEREDUSERID => 0, RegisteredUserTableMap::COL_EMAIL => 1, RegisteredUserTableMap::COL_PASSWORDHASH => 2, RegisteredUserTableMap::COL_ACTIVATIONKEY => 3, RegisteredUserTableMap::COL_REGISTEREDDATE => 4, RegisteredUserTableMap::COL_ACTIVATIONDATE => 5, RegisteredUserTableMap::COL_ACTIVATED => 6, RegisteredUserTableMap::COL_RATING => 7, RegisteredUserTableMap::COL_LOCATIONLATITUDE => 8, RegisteredUserTableMap::COL_LOCATIONLONGITUDE => 9, RegisteredUserTableMap::COL_LOCATIONACCURACY => 10, RegisteredUserTableMap::COL_IMEI => 11, ),
-        self::TYPE_FIELDNAME     => array('RegisteredUserId' => 0, 'Email' => 1, 'PasswordHash' => 2, 'ActivationKey' => 3, 'RegisteredDate' => 4, 'ActivationDate' => 5, 'Activated' => 6, 'Rating' => 7, 'LocationLatitude' => 8, 'LocationLongitude' => 9, 'LocationAccuracy' => 10, 'IMEI' => 11, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, )
+        self::TYPE_PHPNAME       => array('Roomid' => 0, 'Createddate' => 1, 'Timeout' => 2, 'Messagestackid' => 3, 'Roomusersid' => 4, 'Rating' => 5, 'Locationlatitude' => 6, 'Locationlongitude' => 7, 'Locationaccuracy' => 8, ),
+        self::TYPE_CAMELNAME     => array('roomid' => 0, 'createddate' => 1, 'timeout' => 2, 'messagestackid' => 3, 'roomusersid' => 4, 'rating' => 5, 'locationlatitude' => 6, 'locationlongitude' => 7, 'locationaccuracy' => 8, ),
+        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID => 0, RoomTableMap::COL_CREATEDDATE => 1, RoomTableMap::COL_TIMEOUT => 2, RoomTableMap::COL_MESSAGESTACKID => 3, RoomTableMap::COL_ROOMUSERSID => 4, RoomTableMap::COL_RATING => 5, RoomTableMap::COL_LOCATIONLATITUDE => 6, RoomTableMap::COL_LOCATIONLONGITUDE => 7, RoomTableMap::COL_LOCATIONACCURACY => 8, ),
+        self::TYPE_FIELDNAME     => array('RoomId' => 0, 'CreatedDate' => 1, 'Timeout' => 2, 'MessageStackId' => 3, 'RoomUsersId' => 4, 'Rating' => 5, 'LocationLatitude' => 6, 'LocationLongitude' => 7, 'LocationAccuracy' => 8, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -174,25 +159,22 @@ class RegisteredUserTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('RegisteredUser');
-        $this->setPhpName('RegisteredUser');
+        $this->setName('Room');
+        $this->setPhpName('Room');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\RegisteredUser');
+        $this->setClassName('\\Room');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
         // columns
-        $this->addPrimaryKey('RegisteredUserId', 'Registereduserid', 'INTEGER', true, null, null);
-        $this->addColumn('Email', 'Email', 'VARCHAR', true, 255, null);
-        $this->addColumn('PasswordHash', 'Passwordhash', 'VARCHAR', true, 64, null);
-        $this->addColumn('ActivationKey', 'Activationkey', 'VARCHAR', true, 25, null);
-        $this->addColumn('RegisteredDate', 'Registereddate', 'TIMESTAMP', true, null, null);
-        $this->addColumn('ActivationDate', 'Activationdate', 'TIMESTAMP', false, null, null);
-        $this->addColumn('Activated', 'Activated', 'BOOLEAN', true, 1, null);
+        $this->addPrimaryKey('RoomId', 'Roomid', 'INTEGER', true, null, null);
+        $this->addColumn('CreatedDate', 'Createddate', 'TIMESTAMP', true, null, null);
+        $this->addColumn('Timeout', 'Timeout', 'TIMESTAMP', true, null, null);
+        $this->addColumn('MessageStackId', 'Messagestackid', 'INTEGER', true, null, null);
+        $this->addColumn('RoomUsersId', 'Roomusersid', 'INTEGER', true, null, null);
         $this->addColumn('Rating', 'Rating', 'INTEGER', true, null, null);
         $this->addColumn('LocationLatitude', 'Locationlatitude', 'DOUBLE', true, null, null);
         $this->addColumn('LocationLongitude', 'Locationlongitude', 'DOUBLE', true, null, null);
         $this->addColumn('LocationAccuracy', 'Locationaccuracy', 'INTEGER', true, null, null);
-        $this->addColumn('IMEI', 'Imei', 'VARCHAR', true, 64, null);
     } // initialize()
 
     /**
@@ -218,11 +200,11 @@ class RegisteredUserTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)];
+        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
     }
 
     /**
@@ -242,7 +224,7 @@ class RegisteredUserTableMap extends TableMap
         return (int) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
-                : self::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)
+                : self::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)
         ];
     }
 
@@ -259,7 +241,7 @@ class RegisteredUserTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? RegisteredUserTableMap::CLASS_DEFAULT : RegisteredUserTableMap::OM_CLASS;
+        return $withPrefix ? RoomTableMap::CLASS_DEFAULT : RoomTableMap::OM_CLASS;
     }
 
     /**
@@ -273,22 +255,22 @@ class RegisteredUserTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (RegisteredUser object, last column rank)
+     * @return array           (Room object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = RegisteredUserTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = RegisteredUserTableMap::getInstanceFromPool($key))) {
+        $key = RoomTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = RoomTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + RegisteredUserTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + RoomTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = RegisteredUserTableMap::OM_CLASS;
-            /** @var RegisteredUser $obj */
+            $cls = RoomTableMap::OM_CLASS;
+            /** @var Room $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            RegisteredUserTableMap::addInstanceToPool($obj, $key);
+            RoomTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -311,18 +293,18 @@ class RegisteredUserTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = RegisteredUserTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = RegisteredUserTableMap::getInstanceFromPool($key))) {
+            $key = RoomTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = RoomTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var RegisteredUser $obj */
+                /** @var Room $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                RegisteredUserTableMap::addInstanceToPool($obj, $key);
+                RoomTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -343,31 +325,25 @@ class RegisteredUserTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_REGISTEREDUSERID);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_EMAIL);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_PASSWORDHASH);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_ACTIVATIONKEY);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_REGISTEREDDATE);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_ACTIVATIONDATE);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_ACTIVATED);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_RATING);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_LOCATIONLATITUDE);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_LOCATIONLONGITUDE);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_LOCATIONACCURACY);
-            $criteria->addSelectColumn(RegisteredUserTableMap::COL_IMEI);
+            $criteria->addSelectColumn(RoomTableMap::COL_ROOMID);
+            $criteria->addSelectColumn(RoomTableMap::COL_CREATEDDATE);
+            $criteria->addSelectColumn(RoomTableMap::COL_TIMEOUT);
+            $criteria->addSelectColumn(RoomTableMap::COL_MESSAGESTACKID);
+            $criteria->addSelectColumn(RoomTableMap::COL_ROOMUSERSID);
+            $criteria->addSelectColumn(RoomTableMap::COL_RATING);
+            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLATITUDE);
+            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLONGITUDE);
+            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONACCURACY);
         } else {
-            $criteria->addSelectColumn($alias . '.RegisteredUserId');
-            $criteria->addSelectColumn($alias . '.Email');
-            $criteria->addSelectColumn($alias . '.PasswordHash');
-            $criteria->addSelectColumn($alias . '.ActivationKey');
-            $criteria->addSelectColumn($alias . '.RegisteredDate');
-            $criteria->addSelectColumn($alias . '.ActivationDate');
-            $criteria->addSelectColumn($alias . '.Activated');
+            $criteria->addSelectColumn($alias . '.RoomId');
+            $criteria->addSelectColumn($alias . '.CreatedDate');
+            $criteria->addSelectColumn($alias . '.Timeout');
+            $criteria->addSelectColumn($alias . '.MessageStackId');
+            $criteria->addSelectColumn($alias . '.RoomUsersId');
             $criteria->addSelectColumn($alias . '.Rating');
             $criteria->addSelectColumn($alias . '.LocationLatitude');
             $criteria->addSelectColumn($alias . '.LocationLongitude');
             $criteria->addSelectColumn($alias . '.LocationAccuracy');
-            $criteria->addSelectColumn($alias . '.IMEI');
         }
     }
 
@@ -380,7 +356,7 @@ class RegisteredUserTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(RegisteredUserTableMap::DATABASE_NAME)->getTable(RegisteredUserTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(RoomTableMap::DATABASE_NAME)->getTable(RoomTableMap::TABLE_NAME);
     }
 
     /**
@@ -388,16 +364,16 @@ class RegisteredUserTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RegisteredUserTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(RegisteredUserTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new RegisteredUserTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RoomTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(RoomTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new RoomTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a RegisteredUser or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Room or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or RegisteredUser object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Room object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -408,27 +384,27 @@ class RegisteredUserTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RegisteredUserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RoomTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \RegisteredUser) { // it's a model object
+        } elseif ($values instanceof \Room) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(RegisteredUserTableMap::DATABASE_NAME);
-            $criteria->add(RegisteredUserTableMap::COL_REGISTEREDUSERID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(RoomTableMap::DATABASE_NAME);
+            $criteria->add(RoomTableMap::COL_ROOMID, (array) $values, Criteria::IN);
         }
 
-        $query = RegisteredUserQuery::create()->mergeWith($criteria);
+        $query = RoomQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            RegisteredUserTableMap::clearInstancePool();
+            RoomTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                RegisteredUserTableMap::removeInstanceFromPool($singleval);
+                RoomTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -436,20 +412,20 @@ class RegisteredUserTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the RegisteredUser table.
+     * Deletes all rows from the Room table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return RegisteredUserQuery::create()->doDeleteAll($con);
+        return RoomQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a RegisteredUser or Criteria object.
+     * Performs an INSERT on the database, given a Room or Criteria object.
      *
-     * @param mixed               $criteria Criteria or RegisteredUser object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Room object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -458,22 +434,22 @@ class RegisteredUserTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RegisteredUserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RoomTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from RegisteredUser object
+            $criteria = $criteria->buildCriteria(); // build Criteria from Room object
         }
 
-        if ($criteria->containsKey(RegisteredUserTableMap::COL_REGISTEREDUSERID) && $criteria->keyContainsValue(RegisteredUserTableMap::COL_REGISTEREDUSERID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.RegisteredUserTableMap::COL_REGISTEREDUSERID.')');
+        if ($criteria->containsKey(RoomTableMap::COL_ROOMID) && $criteria->keyContainsValue(RoomTableMap::COL_ROOMID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.RoomTableMap::COL_ROOMID.')');
         }
 
 
         // Set the correct dbName
-        $query = RegisteredUserQuery::create()->mergeWith($criteria);
+        $query = RoomQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -482,7 +458,7 @@ class RegisteredUserTableMap extends TableMap
         });
     }
 
-} // RegisteredUserTableMap
+} // RoomTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-RegisteredUserTableMap::buildTableMap();
+RoomTableMap::buildTableMap();
