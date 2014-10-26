@@ -1,5 +1,9 @@
 <?php
 
+include_once __DIR__."/../chatstorm/chatstorm.php";
+
+use Chatstorm\Validators as Validators;
+use Chatstorm\Util as Util;
 use Base\RoomUser as BaseRoomUser;
 
 /**
@@ -18,12 +22,10 @@ class RoomUser extends BaseRoomUser
     public static function GetAdjective()
     {
         $lines = file("../include/adjectives.txt", FILE_IGNORE_NEW_LINES);
-
+        if( $lines == false) Util::DieWithJSONError("Could not read adjectives.txt");
         $randomFind = array_rand( $lines );
 
-        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
-
-        echo $randomFind;
+        //$randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
         return $randomFind;
 
@@ -32,13 +34,11 @@ class RoomUser extends BaseRoomUser
     public static function GetNoun()
     {
         $lines = file("../include/nouns.txt", FILE_IGNORE_NEW_LINES);
-
+        if( $lines == false) Util::DieWithJSONError("Could not read nouns.txt");
         $randomFind = array_rand( $lines );
 
-        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
+        //$randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
-        echo $randomFind;
-        
         return $randomFind;
 
     }
