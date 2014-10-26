@@ -126,7 +126,7 @@ abstract class Room implements ActiveRecordInterface
     /**
      * @var        ChildRegisteredUser
      */
-    protected $aRegisteredUser;
+    protected $aCreator;
 
     /**
      * @var        ObjectCollection|ChildMessage[] Collection to store aggregation of ChildMessage objects.
@@ -544,8 +544,8 @@ abstract class Room implements ActiveRecordInterface
             $this->modifiedColumns[RoomTableMap::COL_CREATORUSERID] = true;
         }
 
-        if ($this->aRegisteredUser !== null && $this->aRegisteredUser->getRegistereduserid() !== $v) {
-            $this->aRegisteredUser = null;
+        if ($this->aCreator !== null && $this->aCreator->getRegistereduserid() !== $v) {
+            $this->aCreator = null;
         }
 
         return $this;
@@ -769,8 +769,8 @@ abstract class Room implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aRegisteredUser !== null && $this->creatoruserid !== $this->aRegisteredUser->getRegistereduserid()) {
-            $this->aRegisteredUser = null;
+        if ($this->aCreator !== null && $this->creatoruserid !== $this->aCreator->getRegistereduserid()) {
+            $this->aCreator = null;
         }
     } // ensureConsistency
 
@@ -811,7 +811,7 @@ abstract class Room implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aRegisteredUser = null;
+            $this->aCreator = null;
             $this->collMessages = null;
 
             $this->collRoomUsers = null;
@@ -920,11 +920,11 @@ abstract class Room implements ActiveRecordInterface
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aRegisteredUser !== null) {
-                if ($this->aRegisteredUser->isModified() || $this->aRegisteredUser->isNew()) {
-                    $affectedRows += $this->aRegisteredUser->save($con);
+            if ($this->aCreator !== null) {
+                if ($this->aCreator->isModified() || $this->aCreator->isNew()) {
+                    $affectedRows += $this->aCreator->save($con);
                 }
-                $this->setRegisteredUser($this->aRegisteredUser);
+                $this->setCreator($this->aCreator);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -1198,7 +1198,7 @@ abstract class Room implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aRegisteredUser) {
+            if (null !== $this->aCreator) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
@@ -1211,7 +1211,7 @@ abstract class Room implements ActiveRecordInterface
                         $key = 'RegisteredUser';
                 }
 
-                $result[$key] = $this->aRegisteredUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+                $result[$key] = $this->aCreator->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
             if (null !== $this->collMessages) {
 
@@ -1457,7 +1457,7 @@ abstract class Room implements ActiveRecordInterface
         $primaryKeyFKs = [];
 
         //relation Room_fk_793b73 to table RegisteredUser
-        if ($this->aRegisteredUser && $hash = spl_object_hash($this->aRegisteredUser)) {
+        if ($this->aCreator && $hash = spl_object_hash($this->aCreator)) {
             $primaryKeyFKs[] = $hash;
         } else {
             $validPrimaryKeyFKs = false;
@@ -1583,7 +1583,7 @@ abstract class Room implements ActiveRecordInterface
      * @return $this|\Room The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setRegisteredUser(ChildRegisteredUser $v = null)
+    public function setCreator(ChildRegisteredUser $v = null)
     {
         if ($v === null) {
             $this->setCreatoruserid(NULL);
@@ -1591,7 +1591,7 @@ abstract class Room implements ActiveRecordInterface
             $this->setCreatoruserid($v->getRegistereduserid());
         }
 
-        $this->aRegisteredUser = $v;
+        $this->aCreator = $v;
 
         // Add binding for other direction of this n:n relationship.
         // If this object has already been added to the ChildRegisteredUser object, it will not be re-added.
@@ -1611,20 +1611,20 @@ abstract class Room implements ActiveRecordInterface
      * @return ChildRegisteredUser The associated ChildRegisteredUser object.
      * @throws PropelException
      */
-    public function getRegisteredUser(ConnectionInterface $con = null)
+    public function getCreator(ConnectionInterface $con = null)
     {
-        if ($this->aRegisteredUser === null && ($this->creatoruserid !== null)) {
-            $this->aRegisteredUser = ChildRegisteredUserQuery::create()->findPk($this->creatoruserid, $con);
+        if ($this->aCreator === null && ($this->creatoruserid !== null)) {
+            $this->aCreator = ChildRegisteredUserQuery::create()->findPk($this->creatoruserid, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
                 undesirable since it could result in an only partially populated collection
                 in the referenced object.
-                $this->aRegisteredUser->addRooms($this);
+                $this->aCreator->addRooms($this);
              */
         }
 
-        return $this->aRegisteredUser;
+        return $this->aCreator;
     }
 
 
@@ -2117,8 +2117,8 @@ abstract class Room implements ActiveRecordInterface
      */
     public function clear()
     {
-        if (null !== $this->aRegisteredUser) {
-            $this->aRegisteredUser->removeRoom($this);
+        if (null !== $this->aCreator) {
+            $this->aCreator->removeRoom($this);
         }
         $this->roomid = null;
         $this->createddate = null;
@@ -2161,7 +2161,7 @@ abstract class Room implements ActiveRecordInterface
 
         $this->collMessages = null;
         $this->collRoomUsers = null;
-        $this->aRegisteredUser = null;
+        $this->aCreator = null;
     }
 
     /**

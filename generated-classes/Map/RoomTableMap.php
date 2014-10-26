@@ -182,7 +182,7 @@ class RoomTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('CreatorUserId' => 'RegisteredUserId', ), null, null);
+        $this->addRelation('Creator', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('CreatorUserId' => 'RegisteredUserId', ), null, null);
         $this->addRelation('Message', '\\Message', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'Messages');
         $this->addRelation('RoomUser', '\\RoomUser', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'RoomUsers');
     } // buildRelations()

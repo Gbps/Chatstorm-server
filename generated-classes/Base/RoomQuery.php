@@ -44,9 +44,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildRoomQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
- * @method     ChildRoomQuery leftJoinRegisteredUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the RegisteredUser relation
- * @method     ChildRoomQuery rightJoinRegisteredUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RegisteredUser relation
- * @method     ChildRoomQuery innerJoinRegisteredUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RegisteredUser relation
+ * @method     ChildRoomQuery leftJoinCreator($relationAlias = null) Adds a LEFT JOIN clause to the query using the Creator relation
+ * @method     ChildRoomQuery rightJoinCreator($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Creator relation
+ * @method     ChildRoomQuery innerJoinCreator($relationAlias = null) Adds a INNER JOIN clause to the query using the Creator relation
  *
  * @method     ChildRoomQuery leftJoinMessage($relationAlias = null) Adds a LEFT JOIN clause to the query using the Message relation
  * @method     ChildRoomQuery rightJoinMessage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Message relation
@@ -368,7 +368,7 @@ abstract class RoomQuery extends ModelCriteria
      * $query->filterByCreatoruserid(array('min' => 12)); // WHERE CreatorUserId > 12
      * </code>
      *
-     * @see       filterByRegisteredUser()
+     * @see       filterByCreator()
      *
      * @param     mixed $creatoruserid The value to use as filter.
      *              Use scalar values for equality.
@@ -647,7 +647,7 @@ abstract class RoomQuery extends ModelCriteria
      *
      * @return ChildRoomQuery The current query, for fluid interface
      */
-    public function filterByRegisteredUser($registeredUser, $comparison = null)
+    public function filterByCreator($registeredUser, $comparison = null)
     {
         if ($registeredUser instanceof \RegisteredUser) {
             return $this
@@ -660,22 +660,22 @@ abstract class RoomQuery extends ModelCriteria
             return $this
                 ->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
         } else {
-            throw new PropelException('filterByRegisteredUser() only accepts arguments of type \RegisteredUser or Collection');
+            throw new PropelException('filterByCreator() only accepts arguments of type \RegisteredUser or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the RegisteredUser relation
+     * Adds a JOIN clause to the query using the Creator relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildRoomQuery The current query, for fluid interface
      */
-    public function joinRegisteredUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinCreator($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('RegisteredUser');
+        $relationMap = $tableMap->getRelation('Creator');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -690,14 +690,14 @@ abstract class RoomQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'RegisteredUser');
+            $this->addJoinObject($join, 'Creator');
         }
 
         return $this;
     }
 
     /**
-     * Use the RegisteredUser relation RegisteredUser object
+     * Use the Creator relation RegisteredUser object
      *
      * @see useQuery()
      *
@@ -707,11 +707,11 @@ abstract class RoomQuery extends ModelCriteria
      *
      * @return \RegisteredUserQuery A secondary query class using the current class as primary query
      */
-    public function useRegisteredUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useCreatorQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinRegisteredUser($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'RegisteredUser', '\RegisteredUserQuery');
+            ->joinCreator($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Creator', '\RegisteredUserQuery');
     }
 
     /**

@@ -1799,7 +1799,7 @@ abstract class RegisteredUser implements ActiveRecordInterface
                 $this->initRooms();
             } else {
                 $collRooms = ChildRoomQuery::create(null, $criteria)
-                    ->filterByRegisteredUser($this)
+                    ->filterByCreator($this)
                     ->find($con);
 
                 if (null !== $criteria) {
@@ -1856,7 +1856,7 @@ abstract class RegisteredUser implements ActiveRecordInterface
         $this->roomsScheduledForDeletion = clone $roomsToDelete;
 
         foreach ($roomsToDelete as $roomRemoved) {
-            $roomRemoved->setRegisteredUser(null);
+            $roomRemoved->setCreator(null);
         }
 
         $this->collRooms = null;
@@ -1897,7 +1897,7 @@ abstract class RegisteredUser implements ActiveRecordInterface
             }
 
             return $query
-                ->filterByRegisteredUser($this)
+                ->filterByCreator($this)
                 ->count($con);
         }
 
@@ -1931,7 +1931,7 @@ abstract class RegisteredUser implements ActiveRecordInterface
     protected function doAddRoom(ChildRoom $room)
     {
         $this->collRooms[]= $room;
-        $room->setRegisteredUser($this);
+        $room->setCreator($this);
     }
 
     /**
@@ -1948,7 +1948,7 @@ abstract class RegisteredUser implements ActiveRecordInterface
                 $this->roomsScheduledForDeletion->clear();
             }
             $this->roomsScheduledForDeletion[]= clone $room;
-            $room->setRegisteredUser(null);
+            $room->setCreator(null);
         }
 
         return $this;
