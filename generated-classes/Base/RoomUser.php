@@ -2,6 +2,13 @@
 
 namespace Base;
 
+use \Message as ChildMessage;
+use \MessageQuery as ChildMessageQuery;
+use \RegisteredUser as ChildRegisteredUser;
+use \RegisteredUserQuery as ChildRegisteredUserQuery;
+use \Room as ChildRoom;
+use \RoomQuery as ChildRoomQuery;
+use \RoomUser as ChildRoomUser;
 use \RoomUserQuery as ChildRoomUserQuery;
 use \Exception;
 use \PDO;
@@ -11,6 +18,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -72,10 +80,10 @@ abstract class RoomUser implements ActiveRecordInterface
     protected $visiblename;
 
     /**
-     * The value for the userid field.
+     * The value for the registereduserid field.
      * @var        int
      */
-    protected $userid;
+    protected $registereduserid;
 
     /**
      * The value for the roomid field.
@@ -84,12 +92,34 @@ abstract class RoomUser implements ActiveRecordInterface
     protected $roomid;
 
     /**
+     * @var        ChildRegisteredUser
+     */
+    protected $aRegisteredUser;
+
+    /**
+     * @var        ChildRoom
+     */
+    protected $aRoom;
+
+    /**
+     * @var        ObjectCollection|ChildMessage[] Collection to store aggregation of ChildMessage objects.
+     */
+    protected $collMessages;
+    protected $collMessagesPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildMessage[]
+     */
+    protected $messagesScheduledForDeletion = null;
 
     /**
      * Initializes internal state of Base\RoomUser object.
@@ -329,13 +359,13 @@ abstract class RoomUser implements ActiveRecordInterface
     }
 
     /**
-     * Get the [userid] column value.
+     * Get the [registereduserid] column value.
      *
      * @return int
      */
-    public function getUserid()
+    public function getRegistereduserid()
     {
-        return $this->userid;
+        return $this->registereduserid;
     }
 
     /**
@@ -389,24 +419,28 @@ abstract class RoomUser implements ActiveRecordInterface
     } // setVisiblename()
 
     /**
-     * Set the value of [userid] column.
+     * Set the value of [registereduserid] column.
      *
      * @param  int $v new value
      * @return $this|\RoomUser The current object (for fluent API support)
      */
-    public function setUserid($v)
+    public function setRegistereduserid($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->userid !== $v) {
-            $this->userid = $v;
-            $this->modifiedColumns[RoomUserTableMap::COL_USERID] = true;
+        if ($this->registereduserid !== $v) {
+            $this->registereduserid = $v;
+            $this->modifiedColumns[RoomUserTableMap::COL_REGISTEREDUSERID] = true;
+        }
+
+        if ($this->aRegisteredUser !== null && $this->aRegisteredUser->getRegistereduserid() !== $v) {
+            $this->aRegisteredUser = null;
         }
 
         return $this;
-    } // setUserid()
+    } // setRegistereduserid()
 
     /**
      * Set the value of [roomid] column.
@@ -423,6 +457,10 @@ abstract class RoomUser implements ActiveRecordInterface
         if ($this->roomid !== $v) {
             $this->roomid = $v;
             $this->modifiedColumns[RoomUserTableMap::COL_ROOMID] = true;
+        }
+
+        if ($this->aRoom !== null && $this->aRoom->getRoomid() !== $v) {
+            $this->aRoom = null;
         }
 
         return $this;
@@ -470,8 +508,8 @@ abstract class RoomUser implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : RoomUserTableMap::translateFieldName('Visiblename', TableMap::TYPE_PHPNAME, $indexType)];
             $this->visiblename = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : RoomUserTableMap::translateFieldName('Userid', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->userid = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : RoomUserTableMap::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->registereduserid = (null !== $col) ? (int) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : RoomUserTableMap::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
             $this->roomid = (null !== $col) ? (int) $col : null;
@@ -505,6 +543,12 @@ abstract class RoomUser implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
+        if ($this->aRegisteredUser !== null && $this->registereduserid !== $this->aRegisteredUser->getRegistereduserid()) {
+            $this->aRegisteredUser = null;
+        }
+        if ($this->aRoom !== null && $this->roomid !== $this->aRoom->getRoomid()) {
+            $this->aRoom = null;
+        }
     } // ensureConsistency
 
     /**
@@ -543,6 +587,10 @@ abstract class RoomUser implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->aRegisteredUser = null;
+            $this->aRoom = null;
+            $this->collMessages = null;
 
         } // if (deep)
     }
@@ -643,6 +691,25 @@ abstract class RoomUser implements ActiveRecordInterface
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aRegisteredUser !== null) {
+                if ($this->aRegisteredUser->isModified() || $this->aRegisteredUser->isNew()) {
+                    $affectedRows += $this->aRegisteredUser->save($con);
+                }
+                $this->setRegisteredUser($this->aRegisteredUser);
+            }
+
+            if ($this->aRoom !== null) {
+                if ($this->aRoom->isModified() || $this->aRoom->isNew()) {
+                    $affectedRows += $this->aRoom->save($con);
+                }
+                $this->setRoom($this->aRoom);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -652,6 +719,23 @@ abstract class RoomUser implements ActiveRecordInterface
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->messagesScheduledForDeletion !== null) {
+                if (!$this->messagesScheduledForDeletion->isEmpty()) {
+                    \MessageQuery::create()
+                        ->filterByPrimaryKeys($this->messagesScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->messagesScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collMessages !== null) {
+                foreach ($this->collMessages as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -686,8 +770,8 @@ abstract class RoomUser implements ActiveRecordInterface
         if ($this->isColumnModified(RoomUserTableMap::COL_VISIBLENAME)) {
             $modifiedColumns[':p' . $index++]  = 'VisibleName';
         }
-        if ($this->isColumnModified(RoomUserTableMap::COL_USERID)) {
-            $modifiedColumns[':p' . $index++]  = 'UserId';
+        if ($this->isColumnModified(RoomUserTableMap::COL_REGISTEREDUSERID)) {
+            $modifiedColumns[':p' . $index++]  = 'RegisteredUserId';
         }
         if ($this->isColumnModified(RoomUserTableMap::COL_ROOMID)) {
             $modifiedColumns[':p' . $index++]  = 'RoomId';
@@ -709,8 +793,8 @@ abstract class RoomUser implements ActiveRecordInterface
                     case 'VisibleName':
                         $stmt->bindValue($identifier, $this->visiblename, PDO::PARAM_STR);
                         break;
-                    case 'UserId':
-                        $stmt->bindValue($identifier, $this->userid, PDO::PARAM_INT);
+                    case 'RegisteredUserId':
+                        $stmt->bindValue($identifier, $this->registereduserid, PDO::PARAM_INT);
                         break;
                     case 'RoomId':
                         $stmt->bindValue($identifier, $this->roomid, PDO::PARAM_INT);
@@ -784,7 +868,7 @@ abstract class RoomUser implements ActiveRecordInterface
                 return $this->getVisiblename();
                 break;
             case 2:
-                return $this->getUserid();
+                return $this->getRegistereduserid();
                 break;
             case 3:
                 return $this->getRoomid();
@@ -806,10 +890,11 @@ abstract class RoomUser implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
         if (isset($alreadyDumpedObjects['RoomUser'][$this->hashCode()])) {
@@ -820,7 +905,7 @@ abstract class RoomUser implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getRoomuserid(),
             $keys[1] => $this->getVisiblename(),
-            $keys[2] => $this->getUserid(),
+            $keys[2] => $this->getRegistereduserid(),
             $keys[3] => $this->getRoomid(),
         );
         $virtualColumns = $this->virtualColumns;
@@ -828,6 +913,53 @@ abstract class RoomUser implements ActiveRecordInterface
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->aRegisteredUser) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'registeredUser';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'RegisteredUser';
+                        break;
+                    default:
+                        $key = 'RegisteredUser';
+                }
+
+                $result[$key] = $this->aRegisteredUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aRoom) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'room';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Room';
+                        break;
+                    default:
+                        $key = 'Room';
+                }
+
+                $result[$key] = $this->aRoom->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collMessages) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'messages';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'Messages';
+                        break;
+                    default:
+                        $key = 'Messages';
+                }
+
+                $result[$key] = $this->collMessages->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -868,7 +1000,7 @@ abstract class RoomUser implements ActiveRecordInterface
                 $this->setVisiblename($value);
                 break;
             case 2:
-                $this->setUserid($value);
+                $this->setRegistereduserid($value);
                 break;
             case 3:
                 $this->setRoomid($value);
@@ -906,7 +1038,7 @@ abstract class RoomUser implements ActiveRecordInterface
             $this->setVisiblename($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setUserid($arr[$keys[2]]);
+            $this->setRegistereduserid($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
             $this->setRoomid($arr[$keys[3]]);
@@ -952,8 +1084,8 @@ abstract class RoomUser implements ActiveRecordInterface
         if ($this->isColumnModified(RoomUserTableMap::COL_VISIBLENAME)) {
             $criteria->add(RoomUserTableMap::COL_VISIBLENAME, $this->visiblename);
         }
-        if ($this->isColumnModified(RoomUserTableMap::COL_USERID)) {
-            $criteria->add(RoomUserTableMap::COL_USERID, $this->userid);
+        if ($this->isColumnModified(RoomUserTableMap::COL_REGISTEREDUSERID)) {
+            $criteria->add(RoomUserTableMap::COL_REGISTEREDUSERID, $this->registereduserid);
         }
         if ($this->isColumnModified(RoomUserTableMap::COL_ROOMID)) {
             $criteria->add(RoomUserTableMap::COL_ROOMID, $this->roomid);
@@ -1045,8 +1177,22 @@ abstract class RoomUser implements ActiveRecordInterface
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setVisiblename($this->getVisiblename());
-        $copyObj->setUserid($this->getUserid());
+        $copyObj->setRegistereduserid($this->getRegistereduserid());
         $copyObj->setRoomid($this->getRoomid());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getMessages() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addMessage($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setRoomuserid(NULL); // this is a auto-increment column, so set to default value
@@ -1076,15 +1222,357 @@ abstract class RoomUser implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildRegisteredUser object.
+     *
+     * @param  ChildRegisteredUser $v
+     * @return $this|\RoomUser The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setRegisteredUser(ChildRegisteredUser $v = null)
+    {
+        if ($v === null) {
+            $this->setRegistereduserid(NULL);
+        } else {
+            $this->setRegistereduserid($v->getRegistereduserid());
+        }
+
+        $this->aRegisteredUser = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildRegisteredUser object, it will not be re-added.
+        if ($v !== null) {
+            $v->addRoomUser($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildRegisteredUser object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildRegisteredUser The associated ChildRegisteredUser object.
+     * @throws PropelException
+     */
+    public function getRegisteredUser(ConnectionInterface $con = null)
+    {
+        if ($this->aRegisteredUser === null && ($this->registereduserid !== null)) {
+            $this->aRegisteredUser = ChildRegisteredUserQuery::create()->findPk($this->registereduserid, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aRegisteredUser->addRoomUsers($this);
+             */
+        }
+
+        return $this->aRegisteredUser;
+    }
+
+    /**
+     * Declares an association between this object and a ChildRoom object.
+     *
+     * @param  ChildRoom $v
+     * @return $this|\RoomUser The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setRoom(ChildRoom $v = null)
+    {
+        if ($v === null) {
+            $this->setRoomid(NULL);
+        } else {
+            $this->setRoomid($v->getRoomid());
+        }
+
+        $this->aRoom = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildRoom object, it will not be re-added.
+        if ($v !== null) {
+            $v->addRoomUser($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildRoom object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildRoom The associated ChildRoom object.
+     * @throws PropelException
+     */
+    public function getRoom(ConnectionInterface $con = null)
+    {
+        if ($this->aRoom === null && ($this->roomid !== null)) {
+            $this->aRoom = ChildRoomQuery::create()->findPk($this->roomid, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aRoom->addRoomUsers($this);
+             */
+        }
+
+        return $this->aRoom;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('Message' == $relationName) {
+            return $this->initMessages();
+        }
+    }
+
+    /**
+     * Clears out the collMessages collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addMessages()
+     */
+    public function clearMessages()
+    {
+        $this->collMessages = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collMessages collection loaded partially.
+     */
+    public function resetPartialMessages($v = true)
+    {
+        $this->collMessagesPartial = $v;
+    }
+
+    /**
+     * Initializes the collMessages collection.
+     *
+     * By default this just sets the collMessages collection to an empty array (like clearcollMessages());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initMessages($overrideExisting = true)
+    {
+        if (null !== $this->collMessages && !$overrideExisting) {
+            return;
+        }
+        $this->collMessages = new ObjectCollection();
+        $this->collMessages->setModel('\Message');
+    }
+
+    /**
+     * Gets an array of ChildMessage objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildRoomUser is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildMessage[] List of ChildMessage objects
+     * @throws PropelException
+     */
+    public function getMessages(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collMessagesPartial && !$this->isNew();
+        if (null === $this->collMessages || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collMessages) {
+                // return empty collection
+                $this->initMessages();
+            } else {
+                $collMessages = ChildMessageQuery::create(null, $criteria)
+                    ->filterByRoomUser($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collMessagesPartial && count($collMessages)) {
+                        $this->initMessages(false);
+
+                        foreach ($collMessages as $obj) {
+                            if (false == $this->collMessages->contains($obj)) {
+                                $this->collMessages->append($obj);
+                            }
+                        }
+
+                        $this->collMessagesPartial = true;
+                    }
+
+                    return $collMessages;
+                }
+
+                if ($partial && $this->collMessages) {
+                    foreach ($this->collMessages as $obj) {
+                        if ($obj->isNew()) {
+                            $collMessages[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collMessages = $collMessages;
+                $this->collMessagesPartial = false;
+            }
+        }
+
+        return $this->collMessages;
+    }
+
+    /**
+     * Sets a collection of ChildMessage objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $messages A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildRoomUser The current object (for fluent API support)
+     */
+    public function setMessages(Collection $messages, ConnectionInterface $con = null)
+    {
+        /** @var ChildMessage[] $messagesToDelete */
+        $messagesToDelete = $this->getMessages(new Criteria(), $con)->diff($messages);
+
+
+        $this->messagesScheduledForDeletion = $messagesToDelete;
+
+        foreach ($messagesToDelete as $messageRemoved) {
+            $messageRemoved->setRoomUser(null);
+        }
+
+        $this->collMessages = null;
+        foreach ($messages as $message) {
+            $this->addMessage($message);
+        }
+
+        $this->collMessages = $messages;
+        $this->collMessagesPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related Message objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related Message objects.
+     * @throws PropelException
+     */
+    public function countMessages(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collMessagesPartial && !$this->isNew();
+        if (null === $this->collMessages || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collMessages) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getMessages());
+            }
+
+            $query = ChildMessageQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByRoomUser($this)
+                ->count($con);
+        }
+
+        return count($this->collMessages);
+    }
+
+    /**
+     * Method called to associate a ChildMessage object to this object
+     * through the ChildMessage foreign key attribute.
+     *
+     * @param  ChildMessage $l ChildMessage
+     * @return $this|\RoomUser The current object (for fluent API support)
+     */
+    public function addMessage(ChildMessage $l)
+    {
+        if ($this->collMessages === null) {
+            $this->initMessages();
+            $this->collMessagesPartial = true;
+        }
+
+        if (!$this->collMessages->contains($l)) {
+            $this->doAddMessage($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildMessage $message The ChildMessage object to add.
+     */
+    protected function doAddMessage(ChildMessage $message)
+    {
+        $this->collMessages[]= $message;
+        $message->setRoomUser($this);
+    }
+
+    /**
+     * @param  ChildMessage $message The ChildMessage object to remove.
+     * @return $this|ChildRoomUser The current object (for fluent API support)
+     */
+    public function removeMessage(ChildMessage $message)
+    {
+        if ($this->getMessages()->contains($message)) {
+            $pos = $this->collMessages->search($message);
+            $this->collMessages->remove($pos);
+            if (null === $this->messagesScheduledForDeletion) {
+                $this->messagesScheduledForDeletion = clone $this->collMessages;
+                $this->messagesScheduledForDeletion->clear();
+            }
+            $this->messagesScheduledForDeletion[]= clone $message;
+            $message->setRoomUser(null);
+        }
+
+        return $this;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
      */
     public function clear()
     {
+        if (null !== $this->aRegisteredUser) {
+            $this->aRegisteredUser->removeRoomUser($this);
+        }
+        if (null !== $this->aRoom) {
+            $this->aRoom->removeRoomUser($this);
+        }
         $this->roomuserid = null;
         $this->visiblename = null;
-        $this->userid = null;
+        $this->registereduserid = null;
         $this->roomid = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
@@ -1104,8 +1592,16 @@ abstract class RoomUser implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collMessages) {
+                foreach ($this->collMessages as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collMessages = null;
+        $this->aRegisteredUser = null;
+        $this->aRoom = null;
     }
 
     /**

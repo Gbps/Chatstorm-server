@@ -143,7 +143,7 @@ class MessageTableMap extends TableMap
         // columns
         $this->addPrimaryKey('MessageId', 'Messageid', 'INTEGER', true, null, null);
         $this->addColumn('Text', 'Text', 'VARCHAR', true, 1024, null);
-        $this->addColumn('RoomUserId', 'Roomuserid', 'INTEGER', true, null, null);
+        $this->addForeignKey('RoomUserId', 'Roomuserid', 'INTEGER', 'RoomUser', 'RoomUserId', true, null, null);
         $this->addColumn('PostTime', 'Posttime', 'TIMESTAMP', true, null, null);
     } // initialize()
 
@@ -152,6 +152,8 @@ class MessageTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('RoomUser', '\\RoomUser', RelationMap::MANY_TO_ONE, array('RoomUserId' => 'RoomUserId', ), null, null);
+        $this->addRelation('MessageStack', '\\MessageStack', RelationMap::ONE_TO_MANY, array('MessageId' => 'MessageId', ), null, null, 'MessageStacks');
     } // buildRelations()
 
     /**

@@ -2,7 +2,10 @@
 
 namespace Base;
 
+use \RegisteredUser as ChildRegisteredUser;
 use \RegisteredUserQuery as ChildRegisteredUserQuery;
+use \RoomUser as ChildRoomUser;
+use \RoomUserQuery as ChildRoomUserQuery;
 use \DateTime;
 use \Exception;
 use \PDO;
@@ -12,6 +15,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -134,12 +138,24 @@ abstract class RegisteredUser implements ActiveRecordInterface
     protected $imei;
 
     /**
+     * @var        ObjectCollection|ChildRoomUser[] Collection to store aggregation of ChildRoomUser objects.
+     */
+    protected $collRoomUsers;
+    protected $collRoomUsersPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildRoomUser[]
+     */
+    protected $roomUsersScheduledForDeletion = null;
 
     /**
      * Initializes internal state of Base\RegisteredUser object.
@@ -902,6 +918,8 @@ abstract class RegisteredUser implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collRoomUsers = null;
+
         } // if (deep)
     }
 
@@ -1010,6 +1028,23 @@ abstract class RegisteredUser implements ActiveRecordInterface
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->roomUsersScheduledForDeletion !== null) {
+                if (!$this->roomUsersScheduledForDeletion->isEmpty()) {
+                    \RoomUserQuery::create()
+                        ->filterByPrimaryKeys($this->roomUsersScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->roomUsersScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collRoomUsers !== null) {
+                foreach ($this->collRoomUsers as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -1236,10 +1271,11 @@ abstract class RegisteredUser implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
         if (isset($alreadyDumpedObjects['RegisteredUser'][$this->hashCode()])) {
@@ -1266,6 +1302,23 @@ abstract class RegisteredUser implements ActiveRecordInterface
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->collRoomUsers) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'roomUsers';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'RoomUsers';
+                        break;
+                    default:
+                        $key = 'RoomUsers';
+                }
+
+                $result[$key] = $this->collRoomUsers->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -1565,6 +1618,20 @@ abstract class RegisteredUser implements ActiveRecordInterface
         $copyObj->setLocationlongitude($this->getLocationlongitude());
         $copyObj->setLocationaccuracy($this->getLocationaccuracy());
         $copyObj->setImei($this->getImei());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getRoomUsers() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addRoomUser($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setRegistereduserid(NULL); // this is a auto-increment column, so set to default value
@@ -1591,6 +1658,265 @@ abstract class RegisteredUser implements ActiveRecordInterface
         $this->copyInto($copyObj, $deepCopy);
 
         return $copyObj;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('RoomUser' == $relationName) {
+            return $this->initRoomUsers();
+        }
+    }
+
+    /**
+     * Clears out the collRoomUsers collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addRoomUsers()
+     */
+    public function clearRoomUsers()
+    {
+        $this->collRoomUsers = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collRoomUsers collection loaded partially.
+     */
+    public function resetPartialRoomUsers($v = true)
+    {
+        $this->collRoomUsersPartial = $v;
+    }
+
+    /**
+     * Initializes the collRoomUsers collection.
+     *
+     * By default this just sets the collRoomUsers collection to an empty array (like clearcollRoomUsers());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initRoomUsers($overrideExisting = true)
+    {
+        if (null !== $this->collRoomUsers && !$overrideExisting) {
+            return;
+        }
+        $this->collRoomUsers = new ObjectCollection();
+        $this->collRoomUsers->setModel('\RoomUser');
+    }
+
+    /**
+     * Gets an array of ChildRoomUser objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildRegisteredUser is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildRoomUser[] List of ChildRoomUser objects
+     * @throws PropelException
+     */
+    public function getRoomUsers(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collRoomUsersPartial && !$this->isNew();
+        if (null === $this->collRoomUsers || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collRoomUsers) {
+                // return empty collection
+                $this->initRoomUsers();
+            } else {
+                $collRoomUsers = ChildRoomUserQuery::create(null, $criteria)
+                    ->filterByRegisteredUser($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collRoomUsersPartial && count($collRoomUsers)) {
+                        $this->initRoomUsers(false);
+
+                        foreach ($collRoomUsers as $obj) {
+                            if (false == $this->collRoomUsers->contains($obj)) {
+                                $this->collRoomUsers->append($obj);
+                            }
+                        }
+
+                        $this->collRoomUsersPartial = true;
+                    }
+
+                    return $collRoomUsers;
+                }
+
+                if ($partial && $this->collRoomUsers) {
+                    foreach ($this->collRoomUsers as $obj) {
+                        if ($obj->isNew()) {
+                            $collRoomUsers[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collRoomUsers = $collRoomUsers;
+                $this->collRoomUsersPartial = false;
+            }
+        }
+
+        return $this->collRoomUsers;
+    }
+
+    /**
+     * Sets a collection of ChildRoomUser objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $roomUsers A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildRegisteredUser The current object (for fluent API support)
+     */
+    public function setRoomUsers(Collection $roomUsers, ConnectionInterface $con = null)
+    {
+        /** @var ChildRoomUser[] $roomUsersToDelete */
+        $roomUsersToDelete = $this->getRoomUsers(new Criteria(), $con)->diff($roomUsers);
+
+
+        $this->roomUsersScheduledForDeletion = $roomUsersToDelete;
+
+        foreach ($roomUsersToDelete as $roomUserRemoved) {
+            $roomUserRemoved->setRegisteredUser(null);
+        }
+
+        $this->collRoomUsers = null;
+        foreach ($roomUsers as $roomUser) {
+            $this->addRoomUser($roomUser);
+        }
+
+        $this->collRoomUsers = $roomUsers;
+        $this->collRoomUsersPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related RoomUser objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related RoomUser objects.
+     * @throws PropelException
+     */
+    public function countRoomUsers(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collRoomUsersPartial && !$this->isNew();
+        if (null === $this->collRoomUsers || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collRoomUsers) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getRoomUsers());
+            }
+
+            $query = ChildRoomUserQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByRegisteredUser($this)
+                ->count($con);
+        }
+
+        return count($this->collRoomUsers);
+    }
+
+    /**
+     * Method called to associate a ChildRoomUser object to this object
+     * through the ChildRoomUser foreign key attribute.
+     *
+     * @param  ChildRoomUser $l ChildRoomUser
+     * @return $this|\RegisteredUser The current object (for fluent API support)
+     */
+    public function addRoomUser(ChildRoomUser $l)
+    {
+        if ($this->collRoomUsers === null) {
+            $this->initRoomUsers();
+            $this->collRoomUsersPartial = true;
+        }
+
+        if (!$this->collRoomUsers->contains($l)) {
+            $this->doAddRoomUser($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildRoomUser $roomUser The ChildRoomUser object to add.
+     */
+    protected function doAddRoomUser(ChildRoomUser $roomUser)
+    {
+        $this->collRoomUsers[]= $roomUser;
+        $roomUser->setRegisteredUser($this);
+    }
+
+    /**
+     * @param  ChildRoomUser $roomUser The ChildRoomUser object to remove.
+     * @return $this|ChildRegisteredUser The current object (for fluent API support)
+     */
+    public function removeRoomUser(ChildRoomUser $roomUser)
+    {
+        if ($this->getRoomUsers()->contains($roomUser)) {
+            $pos = $this->collRoomUsers->search($roomUser);
+            $this->collRoomUsers->remove($pos);
+            if (null === $this->roomUsersScheduledForDeletion) {
+                $this->roomUsersScheduledForDeletion = clone $this->collRoomUsers;
+                $this->roomUsersScheduledForDeletion->clear();
+            }
+            $this->roomUsersScheduledForDeletion[]= clone $roomUser;
+            $roomUser->setRegisteredUser(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this RegisteredUser is new, it will return
+     * an empty collection; or if this RegisteredUser has previously
+     * been saved, it will retrieve related RoomUsers from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in RegisteredUser.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @param      string $joinBehavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return ObjectCollection|ChildRoomUser[] List of ChildRoomUser objects
+     */
+    public function getRoomUsersJoinRoom(Criteria $criteria = null, ConnectionInterface $con = null, $joinBehavior = Criteria::LEFT_JOIN)
+    {
+        $query = ChildRoomUserQuery::create(null, $criteria);
+        $query->joinWith('Room', $joinBehavior);
+
+        return $this->getRoomUsers($query, $con);
     }
 
     /**
@@ -1630,8 +1956,14 @@ abstract class RegisteredUser implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collRoomUsers) {
+                foreach ($this->collRoomUsers as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collRoomUsers = null;
     }
 
     /**

@@ -10,6 +10,7 @@ use Map\RegisteredUserTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\ActiveQuery\ModelJoin;
 use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
@@ -48,6 +49,12 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRegisteredUserQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildRegisteredUserQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildRegisteredUserQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ *
+ * @method     ChildRegisteredUserQuery leftJoinRoomUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the RoomUser relation
+ * @method     ChildRegisteredUserQuery rightJoinRoomUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RoomUser relation
+ * @method     ChildRegisteredUserQuery innerJoinRoomUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RoomUser relation
+ *
+ * @method     \RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRegisteredUser findOne(ConnectionInterface $con = null) Return the first ChildRegisteredUser matching the query
  * @method     ChildRegisteredUser findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRegisteredUser matching the query, or a new ChildRegisteredUser object populated from the query conditions when no match is found
@@ -691,6 +698,79 @@ abstract class RegisteredUserQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(RegisteredUserTableMap::COL_IMEI, $imei, $comparison);
+    }
+
+    /**
+     * Filter the query by a related \RoomUser object
+     *
+     * @param \RoomUser|ObjectCollection $roomUser  the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildRegisteredUserQuery The current query, for fluid interface
+     */
+    public function filterByRoomUser($roomUser, $comparison = null)
+    {
+        if ($roomUser instanceof \RoomUser) {
+            return $this
+                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $roomUser->getRegistereduserid(), $comparison);
+        } elseif ($roomUser instanceof ObjectCollection) {
+            return $this
+                ->useRoomUserQuery()
+                ->filterByPrimaryKeys($roomUser->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByRoomUser() only accepts arguments of type \RoomUser or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the RoomUser relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRegisteredUserQuery The current query, for fluid interface
+     */
+    public function joinRoomUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('RoomUser');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'RoomUser');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the RoomUser relation RoomUser object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RoomUserQuery A secondary query class using the current class as primary query
+     */
+    public function useRoomUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinRoomUser($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'RoomUser', '\RoomUserQuery');
     }
 
     /**

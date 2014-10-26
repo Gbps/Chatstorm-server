@@ -38,21 +38,11 @@ CREATE TABLE `Message`
     `Text` VARCHAR(1024) NOT NULL,
     `RoomUserId` INTEGER NOT NULL,
     `PostTime` DATETIME NOT NULL,
-    PRIMARY KEY (`MessageId`)
-) ENGINE=InnoDB;
-
--- ---------------------------------------------------------------------
--- MessageStacks
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `MessageStacks`;
-
-CREATE TABLE `MessageStacks`
-(
-    `MessageStackId` INTEGER NOT NULL AUTO_INCREMENT,
-    `RoomId` INTEGER NOT NULL,
-    `MessageId` INTEGER NOT NULL,
-    PRIMARY KEY (`MessageStackId`)
+    PRIMARY KEY (`MessageId`),
+    INDEX `Message_fi_041b9b` (`RoomUserId`),
+    CONSTRAINT `Message_fk_041b9b`
+        FOREIGN KEY (`RoomUserId`)
+        REFERENCES `RoomUser` (`RoomUserId`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
@@ -66,13 +56,34 @@ CREATE TABLE `Room`
     `RoomId` INTEGER NOT NULL AUTO_INCREMENT,
     `CreatedDate` DATETIME NOT NULL,
     `Timeout` DATETIME NOT NULL,
-    `MessageStackId` INTEGER NOT NULL,
     `RoomUsersId` INTEGER NOT NULL,
     `Rating` INTEGER NOT NULL,
     `LocationLatitude` DOUBLE NOT NULL,
     `LocationLongitude` DOUBLE NOT NULL,
     `LocationAccuracy` INTEGER NOT NULL,
     PRIMARY KEY (`RoomId`)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- MessageStack
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `MessageStack`;
+
+CREATE TABLE `MessageStack`
+(
+    `MessageStackId` INTEGER NOT NULL AUTO_INCREMENT,
+    `MessageId` INTEGER NOT NULL,
+    `RoomId` INTEGER NOT NULL,
+    PRIMARY KEY (`MessageStackId`),
+    INDEX `MessageStack_fi_5de2ca` (`MessageId`),
+    INDEX `MessageStack_fi_41e335` (`RoomId`),
+    CONSTRAINT `MessageStack_fk_5de2ca`
+        FOREIGN KEY (`MessageId`)
+        REFERENCES `Message` (`MessageId`),
+    CONSTRAINT `MessageStack_fk_41e335`
+        FOREIGN KEY (`RoomId`)
+        REFERENCES `Room` (`RoomId`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
@@ -85,23 +96,17 @@ CREATE TABLE `RoomUser`
 (
     `RoomUserId` INTEGER NOT NULL AUTO_INCREMENT,
     `VisibleName` VARCHAR(32) NOT NULL,
-    `UserId` INTEGER NOT NULL,
+    `RegisteredUserId` INTEGER NOT NULL,
     `RoomId` INTEGER NOT NULL,
-    PRIMARY KEY (`RoomUserId`)
-) ENGINE=InnoDB;
-
--- ---------------------------------------------------------------------
--- RoomUsers
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `RoomUsers`;
-
-CREATE TABLE `RoomUsers`
-(
-    `RoomUsersId` INTEGER NOT NULL AUTO_INCREMENT,
-    `RoomUserId` INTEGER NOT NULL,
-    `RoomId` INTEGER NOT NULL,
-    PRIMARY KEY (`RoomUsersId`)
+    PRIMARY KEY (`RoomUserId`),
+    INDEX `RoomUser_fi_bb0d7a` (`RegisteredUserId`),
+    INDEX `RoomUser_fi_41e335` (`RoomId`),
+    CONSTRAINT `RoomUser_fk_bb0d7a`
+        FOREIGN KEY (`RegisteredUserId`)
+        REFERENCES `RegisteredUser` (`RegisteredUserId`),
+    CONSTRAINT `RoomUser_fk_41e335`
+        FOREIGN KEY (`RoomId`)
+        REFERENCES `Room` (`RoomId`)
 ) ENGINE=InnoDB;
 
 # This restores the fkey checks, after having unset them earlier

@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \Room;
-use \RoomQuery;
+use \MessageStack;
+use \MessageStackQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'Room' table.
+ * This class defines the structure of the 'MessageStack' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class RoomTableMap extends TableMap
+class MessageStackTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class RoomTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.RoomTableMap';
+    const CLASS_NAME = '.Map.MessageStackTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class RoomTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'Room';
+    const TABLE_NAME = 'MessageStack';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Room';
+    const OM_CLASS = '\\MessageStack';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Room';
+    const CLASS_DEFAULT = 'MessageStack';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 8;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,47 +69,22 @@ class RoomTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 8;
+    const NUM_HYDRATE_COLUMNS = 3;
+
+    /**
+     * the column name for the MessageStackId field
+     */
+    const COL_MESSAGESTACKID = 'MessageStack.MessageStackId';
+
+    /**
+     * the column name for the MessageId field
+     */
+    const COL_MESSAGEID = 'MessageStack.MessageId';
 
     /**
      * the column name for the RoomId field
      */
-    const COL_ROOMID = 'Room.RoomId';
-
-    /**
-     * the column name for the CreatedDate field
-     */
-    const COL_CREATEDDATE = 'Room.CreatedDate';
-
-    /**
-     * the column name for the Timeout field
-     */
-    const COL_TIMEOUT = 'Room.Timeout';
-
-    /**
-     * the column name for the RoomUsersId field
-     */
-    const COL_ROOMUSERSID = 'Room.RoomUsersId';
-
-    /**
-     * the column name for the Rating field
-     */
-    const COL_RATING = 'Room.Rating';
-
-    /**
-     * the column name for the LocationLatitude field
-     */
-    const COL_LOCATIONLATITUDE = 'Room.LocationLatitude';
-
-    /**
-     * the column name for the LocationLongitude field
-     */
-    const COL_LOCATIONLONGITUDE = 'Room.LocationLongitude';
-
-    /**
-     * the column name for the LocationAccuracy field
-     */
-    const COL_LOCATIONACCURACY = 'Room.LocationAccuracy';
+    const COL_ROOMID = 'MessageStack.RoomId';
 
     /**
      * The default string format for model objects of the related table
@@ -123,11 +98,11 @@ class RoomTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Roomid', 'Createddate', 'Timeout', 'Roomusersid', 'Rating', 'Locationlatitude', 'Locationlongitude', 'Locationaccuracy', ),
-        self::TYPE_CAMELNAME     => array('roomid', 'createddate', 'timeout', 'roomusersid', 'rating', 'locationlatitude', 'locationlongitude', 'locationaccuracy', ),
-        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID, RoomTableMap::COL_CREATEDDATE, RoomTableMap::COL_TIMEOUT, RoomTableMap::COL_ROOMUSERSID, RoomTableMap::COL_RATING, RoomTableMap::COL_LOCATIONLATITUDE, RoomTableMap::COL_LOCATIONLONGITUDE, RoomTableMap::COL_LOCATIONACCURACY, ),
-        self::TYPE_FIELDNAME     => array('RoomId', 'CreatedDate', 'Timeout', 'RoomUsersId', 'Rating', 'LocationLatitude', 'LocationLongitude', 'LocationAccuracy', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Messagestackid', 'Messageid', 'Roomid', ),
+        self::TYPE_CAMELNAME     => array('messagestackid', 'messageid', 'roomid', ),
+        self::TYPE_COLNAME       => array(MessageStackTableMap::COL_MESSAGESTACKID, MessageStackTableMap::COL_MESSAGEID, MessageStackTableMap::COL_ROOMID, ),
+        self::TYPE_FIELDNAME     => array('MessageStackId', 'MessageId', 'RoomId', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -137,11 +112,11 @@ class RoomTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Roomid' => 0, 'Createddate' => 1, 'Timeout' => 2, 'Roomusersid' => 3, 'Rating' => 4, 'Locationlatitude' => 5, 'Locationlongitude' => 6, 'Locationaccuracy' => 7, ),
-        self::TYPE_CAMELNAME     => array('roomid' => 0, 'createddate' => 1, 'timeout' => 2, 'roomusersid' => 3, 'rating' => 4, 'locationlatitude' => 5, 'locationlongitude' => 6, 'locationaccuracy' => 7, ),
-        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID => 0, RoomTableMap::COL_CREATEDDATE => 1, RoomTableMap::COL_TIMEOUT => 2, RoomTableMap::COL_ROOMUSERSID => 3, RoomTableMap::COL_RATING => 4, RoomTableMap::COL_LOCATIONLATITUDE => 5, RoomTableMap::COL_LOCATIONLONGITUDE => 6, RoomTableMap::COL_LOCATIONACCURACY => 7, ),
-        self::TYPE_FIELDNAME     => array('RoomId' => 0, 'CreatedDate' => 1, 'Timeout' => 2, 'RoomUsersId' => 3, 'Rating' => 4, 'LocationLatitude' => 5, 'LocationLongitude' => 6, 'LocationAccuracy' => 7, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Messagestackid' => 0, 'Messageid' => 1, 'Roomid' => 2, ),
+        self::TYPE_CAMELNAME     => array('messagestackid' => 0, 'messageid' => 1, 'roomid' => 2, ),
+        self::TYPE_COLNAME       => array(MessageStackTableMap::COL_MESSAGESTACKID => 0, MessageStackTableMap::COL_MESSAGEID => 1, MessageStackTableMap::COL_ROOMID => 2, ),
+        self::TYPE_FIELDNAME     => array('MessageStackId' => 0, 'MessageId' => 1, 'RoomId' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -154,21 +129,17 @@ class RoomTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('Room');
-        $this->setPhpName('Room');
+        $this->setName('MessageStack');
+        $this->setPhpName('MessageStack');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\Room');
+        $this->setClassName('\\MessageStack');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
+        $this->setIsCrossRef(true);
         // columns
-        $this->addPrimaryKey('RoomId', 'Roomid', 'INTEGER', true, null, null);
-        $this->addColumn('CreatedDate', 'Createddate', 'TIMESTAMP', true, null, null);
-        $this->addColumn('Timeout', 'Timeout', 'TIMESTAMP', true, null, null);
-        $this->addColumn('RoomUsersId', 'Roomusersid', 'INTEGER', true, null, null);
-        $this->addColumn('Rating', 'Rating', 'INTEGER', true, null, null);
-        $this->addColumn('LocationLatitude', 'Locationlatitude', 'DOUBLE', true, null, null);
-        $this->addColumn('LocationLongitude', 'Locationlongitude', 'DOUBLE', true, null, null);
-        $this->addColumn('LocationAccuracy', 'Locationaccuracy', 'INTEGER', true, null, null);
+        $this->addPrimaryKey('MessageStackId', 'Messagestackid', 'INTEGER', true, null, null);
+        $this->addForeignKey('MessageId', 'Messageid', 'INTEGER', 'Message', 'MessageId', true, null, null);
+        $this->addForeignKey('RoomId', 'Roomid', 'INTEGER', 'Room', 'RoomId', true, null, null);
     } // initialize()
 
     /**
@@ -176,8 +147,8 @@ class RoomTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('MessageStack', '\\MessageStack', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'MessageStacks');
-        $this->addRelation('RoomUser', '\\RoomUser', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'RoomUsers');
+        $this->addRelation('Message', '\\Message', RelationMap::MANY_TO_ONE, array('MessageId' => 'MessageId', ), null, null);
+        $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_ONE, array('RoomId' => 'RoomId', ), null, null);
     } // buildRelations()
 
     /**
@@ -196,11 +167,11 @@ class RoomTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Messagestackid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
+        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Messagestackid', TableMap::TYPE_PHPNAME, $indexType)];
     }
 
     /**
@@ -220,7 +191,7 @@ class RoomTableMap extends TableMap
         return (int) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
-                : self::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)
+                : self::translateFieldName('Messagestackid', TableMap::TYPE_PHPNAME, $indexType)
         ];
     }
 
@@ -237,7 +208,7 @@ class RoomTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? RoomTableMap::CLASS_DEFAULT : RoomTableMap::OM_CLASS;
+        return $withPrefix ? MessageStackTableMap::CLASS_DEFAULT : MessageStackTableMap::OM_CLASS;
     }
 
     /**
@@ -251,22 +222,22 @@ class RoomTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Room object, last column rank)
+     * @return array           (MessageStack object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = RoomTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = RoomTableMap::getInstanceFromPool($key))) {
+        $key = MessageStackTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = MessageStackTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + RoomTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + MessageStackTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = RoomTableMap::OM_CLASS;
-            /** @var Room $obj */
+            $cls = MessageStackTableMap::OM_CLASS;
+            /** @var MessageStack $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            RoomTableMap::addInstanceToPool($obj, $key);
+            MessageStackTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -289,18 +260,18 @@ class RoomTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = RoomTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = RoomTableMap::getInstanceFromPool($key))) {
+            $key = MessageStackTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = MessageStackTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Room $obj */
+                /** @var MessageStack $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                RoomTableMap::addInstanceToPool($obj, $key);
+                MessageStackTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -321,23 +292,13 @@ class RoomTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(RoomTableMap::COL_ROOMID);
-            $criteria->addSelectColumn(RoomTableMap::COL_CREATEDDATE);
-            $criteria->addSelectColumn(RoomTableMap::COL_TIMEOUT);
-            $criteria->addSelectColumn(RoomTableMap::COL_ROOMUSERSID);
-            $criteria->addSelectColumn(RoomTableMap::COL_RATING);
-            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLATITUDE);
-            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLONGITUDE);
-            $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONACCURACY);
+            $criteria->addSelectColumn(MessageStackTableMap::COL_MESSAGESTACKID);
+            $criteria->addSelectColumn(MessageStackTableMap::COL_MESSAGEID);
+            $criteria->addSelectColumn(MessageStackTableMap::COL_ROOMID);
         } else {
+            $criteria->addSelectColumn($alias . '.MessageStackId');
+            $criteria->addSelectColumn($alias . '.MessageId');
             $criteria->addSelectColumn($alias . '.RoomId');
-            $criteria->addSelectColumn($alias . '.CreatedDate');
-            $criteria->addSelectColumn($alias . '.Timeout');
-            $criteria->addSelectColumn($alias . '.RoomUsersId');
-            $criteria->addSelectColumn($alias . '.Rating');
-            $criteria->addSelectColumn($alias . '.LocationLatitude');
-            $criteria->addSelectColumn($alias . '.LocationLongitude');
-            $criteria->addSelectColumn($alias . '.LocationAccuracy');
         }
     }
 
@@ -350,7 +311,7 @@ class RoomTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(RoomTableMap::DATABASE_NAME)->getTable(RoomTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(MessageStackTableMap::DATABASE_NAME)->getTable(MessageStackTableMap::TABLE_NAME);
     }
 
     /**
@@ -358,16 +319,16 @@ class RoomTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RoomTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(RoomTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new RoomTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(MessageStackTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(MessageStackTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new MessageStackTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Room or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a MessageStack or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Room object or primary key or array of primary keys
+     * @param mixed               $values Criteria or MessageStack object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -378,27 +339,27 @@ class RoomTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RoomTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(MessageStackTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Room) { // it's a model object
+        } elseif ($values instanceof \MessageStack) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(RoomTableMap::DATABASE_NAME);
-            $criteria->add(RoomTableMap::COL_ROOMID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(MessageStackTableMap::DATABASE_NAME);
+            $criteria->add(MessageStackTableMap::COL_MESSAGESTACKID, (array) $values, Criteria::IN);
         }
 
-        $query = RoomQuery::create()->mergeWith($criteria);
+        $query = MessageStackQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            RoomTableMap::clearInstancePool();
+            MessageStackTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                RoomTableMap::removeInstanceFromPool($singleval);
+                MessageStackTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -406,20 +367,20 @@ class RoomTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the Room table.
+     * Deletes all rows from the MessageStack table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return RoomQuery::create()->doDeleteAll($con);
+        return MessageStackQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Room or Criteria object.
+     * Performs an INSERT on the database, given a MessageStack or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Room object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or MessageStack object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -428,22 +389,22 @@ class RoomTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RoomTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(MessageStackTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Room object
+            $criteria = $criteria->buildCriteria(); // build Criteria from MessageStack object
         }
 
-        if ($criteria->containsKey(RoomTableMap::COL_ROOMID) && $criteria->keyContainsValue(RoomTableMap::COL_ROOMID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.RoomTableMap::COL_ROOMID.')');
+        if ($criteria->containsKey(MessageStackTableMap::COL_MESSAGESTACKID) && $criteria->keyContainsValue(MessageStackTableMap::COL_MESSAGESTACKID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.MessageStackTableMap::COL_MESSAGESTACKID.')');
         }
 
 
         // Set the correct dbName
-        $query = RoomQuery::create()->mergeWith($criteria);
+        $query = MessageStackQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -452,7 +413,7 @@ class RoomTableMap extends TableMap
         });
     }
 
-} // RoomTableMap
+} // MessageStackTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-RoomTableMap::buildTableMap();
+MessageStackTableMap::buildTableMap();

@@ -82,9 +82,9 @@ class RoomUserTableMap extends TableMap
     const COL_VISIBLENAME = 'RoomUser.VisibleName';
 
     /**
-     * the column name for the UserId field
+     * the column name for the RegisteredUserId field
      */
-    const COL_USERID = 'RoomUser.UserId';
+    const COL_REGISTEREDUSERID = 'RoomUser.RegisteredUserId';
 
     /**
      * the column name for the RoomId field
@@ -103,10 +103,10 @@ class RoomUserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Roomuserid', 'Visiblename', 'Userid', 'Roomid', ),
-        self::TYPE_CAMELNAME     => array('roomuserid', 'visiblename', 'userid', 'roomid', ),
-        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID, RoomUserTableMap::COL_VISIBLENAME, RoomUserTableMap::COL_USERID, RoomUserTableMap::COL_ROOMID, ),
-        self::TYPE_FIELDNAME     => array('RoomUserId', 'VisibleName', 'UserId', 'RoomId', ),
+        self::TYPE_PHPNAME       => array('Roomuserid', 'Visiblename', 'Registereduserid', 'Roomid', ),
+        self::TYPE_CAMELNAME     => array('roomuserid', 'visiblename', 'registereduserid', 'roomid', ),
+        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID, RoomUserTableMap::COL_VISIBLENAME, RoomUserTableMap::COL_REGISTEREDUSERID, RoomUserTableMap::COL_ROOMID, ),
+        self::TYPE_FIELDNAME     => array('RoomUserId', 'VisibleName', 'RegisteredUserId', 'RoomId', ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -117,10 +117,10 @@ class RoomUserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Roomuserid' => 0, 'Visiblename' => 1, 'Userid' => 2, 'Roomid' => 3, ),
-        self::TYPE_CAMELNAME     => array('roomuserid' => 0, 'visiblename' => 1, 'userid' => 2, 'roomid' => 3, ),
-        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID => 0, RoomUserTableMap::COL_VISIBLENAME => 1, RoomUserTableMap::COL_USERID => 2, RoomUserTableMap::COL_ROOMID => 3, ),
-        self::TYPE_FIELDNAME     => array('RoomUserId' => 0, 'VisibleName' => 1, 'UserId' => 2, 'RoomId' => 3, ),
+        self::TYPE_PHPNAME       => array('Roomuserid' => 0, 'Visiblename' => 1, 'Registereduserid' => 2, 'Roomid' => 3, ),
+        self::TYPE_CAMELNAME     => array('roomuserid' => 0, 'visiblename' => 1, 'registereduserid' => 2, 'roomid' => 3, ),
+        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID => 0, RoomUserTableMap::COL_VISIBLENAME => 1, RoomUserTableMap::COL_REGISTEREDUSERID => 2, RoomUserTableMap::COL_ROOMID => 3, ),
+        self::TYPE_FIELDNAME     => array('RoomUserId' => 0, 'VisibleName' => 1, 'RegisteredUserId' => 2, 'RoomId' => 3, ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -143,8 +143,8 @@ class RoomUserTableMap extends TableMap
         // columns
         $this->addPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER', true, null, null);
         $this->addColumn('VisibleName', 'Visiblename', 'VARCHAR', true, 32, null);
-        $this->addColumn('UserId', 'Userid', 'INTEGER', true, null, null);
-        $this->addColumn('RoomId', 'Roomid', 'INTEGER', true, null, null);
+        $this->addForeignKey('RegisteredUserId', 'Registereduserid', 'INTEGER', 'RegisteredUser', 'RegisteredUserId', true, null, null);
+        $this->addForeignKey('RoomId', 'Roomid', 'INTEGER', 'Room', 'RoomId', true, null, null);
     } // initialize()
 
     /**
@@ -152,6 +152,9 @@ class RoomUserTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('RegisteredUserId' => 'RegisteredUserId', ), null, null);
+        $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_ONE, array('RoomId' => 'RoomId', ), null, null);
+        $this->addRelation('Message', '\\Message', RelationMap::ONE_TO_MANY, array('RoomUserId' => 'RoomUserId', ), null, null, 'Messages');
     } // buildRelations()
 
     /**
@@ -297,12 +300,12 @@ class RoomUserTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(RoomUserTableMap::COL_ROOMUSERID);
             $criteria->addSelectColumn(RoomUserTableMap::COL_VISIBLENAME);
-            $criteria->addSelectColumn(RoomUserTableMap::COL_USERID);
+            $criteria->addSelectColumn(RoomUserTableMap::COL_REGISTEREDUSERID);
             $criteria->addSelectColumn(RoomUserTableMap::COL_ROOMID);
         } else {
             $criteria->addSelectColumn($alias . '.RoomUserId');
             $criteria->addSelectColumn($alias . '.VisibleName');
-            $criteria->addSelectColumn($alias . '.UserId');
+            $criteria->addSelectColumn($alias . '.RegisteredUserId');
             $criteria->addSelectColumn($alias . '.RoomId');
         }
     }
