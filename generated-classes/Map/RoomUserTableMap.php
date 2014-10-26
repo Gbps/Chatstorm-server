@@ -59,7 +59,7 @@ class RoomUserTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 5;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class RoomUserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 5;
 
     /**
      * the column name for the RoomUserId field
@@ -85,6 +85,11 @@ class RoomUserTableMap extends TableMap
      * the column name for the RegisteredUserId field
      */
     const COL_REGISTEREDUSERID = 'RoomUser.RegisteredUserId';
+
+    /**
+     * the column name for the HasVoted field
+     */
+    const COL_HASVOTED = 'RoomUser.HasVoted';
 
     /**
      * the column name for the RoomId field
@@ -103,11 +108,11 @@ class RoomUserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Roomuserid', 'Visiblename', 'Registereduserid', 'Roomid', ),
-        self::TYPE_CAMELNAME     => array('roomuserid', 'visiblename', 'registereduserid', 'roomid', ),
-        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID, RoomUserTableMap::COL_VISIBLENAME, RoomUserTableMap::COL_REGISTEREDUSERID, RoomUserTableMap::COL_ROOMID, ),
-        self::TYPE_FIELDNAME     => array('RoomUserId', 'VisibleName', 'RegisteredUserId', 'RoomId', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Roomuserid', 'Visiblename', 'Registereduserid', 'Hasvoted', 'Roomid', ),
+        self::TYPE_CAMELNAME     => array('roomuserid', 'visiblename', 'registereduserid', 'hasvoted', 'roomid', ),
+        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID, RoomUserTableMap::COL_VISIBLENAME, RoomUserTableMap::COL_REGISTEREDUSERID, RoomUserTableMap::COL_HASVOTED, RoomUserTableMap::COL_ROOMID, ),
+        self::TYPE_FIELDNAME     => array('RoomUserId', 'VisibleName', 'RegisteredUserId', 'HasVoted', 'RoomId', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -117,11 +122,11 @@ class RoomUserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Roomuserid' => 0, 'Visiblename' => 1, 'Registereduserid' => 2, 'Roomid' => 3, ),
-        self::TYPE_CAMELNAME     => array('roomuserid' => 0, 'visiblename' => 1, 'registereduserid' => 2, 'roomid' => 3, ),
-        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID => 0, RoomUserTableMap::COL_VISIBLENAME => 1, RoomUserTableMap::COL_REGISTEREDUSERID => 2, RoomUserTableMap::COL_ROOMID => 3, ),
-        self::TYPE_FIELDNAME     => array('RoomUserId' => 0, 'VisibleName' => 1, 'RegisteredUserId' => 2, 'RoomId' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Roomuserid' => 0, 'Visiblename' => 1, 'Registereduserid' => 2, 'Hasvoted' => 3, 'Roomid' => 4, ),
+        self::TYPE_CAMELNAME     => array('roomuserid' => 0, 'visiblename' => 1, 'registereduserid' => 2, 'hasvoted' => 3, 'roomid' => 4, ),
+        self::TYPE_COLNAME       => array(RoomUserTableMap::COL_ROOMUSERID => 0, RoomUserTableMap::COL_VISIBLENAME => 1, RoomUserTableMap::COL_REGISTEREDUSERID => 2, RoomUserTableMap::COL_HASVOTED => 3, RoomUserTableMap::COL_ROOMID => 4, ),
+        self::TYPE_FIELDNAME     => array('RoomUserId' => 0, 'VisibleName' => 1, 'RegisteredUserId' => 2, 'HasVoted' => 3, 'RoomId' => 4, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -144,6 +149,7 @@ class RoomUserTableMap extends TableMap
         $this->addPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER', true, null, null);
         $this->addColumn('VisibleName', 'Visiblename', 'VARCHAR', true, 32, null);
         $this->addForeignPrimaryKey('RegisteredUserId', 'Registereduserid', 'INTEGER' , 'RegisteredUser', 'RegisteredUserId', true, null, null);
+        $this->addColumn('HasVoted', 'Hasvoted', 'BOOLEAN', true, 1, null);
         $this->addForeignPrimaryKey('RoomId', 'Roomid', 'INTEGER' , 'Room', 'RoomId', true, null, null);
     } // initialize()
 
@@ -225,11 +231,11 @@ class RoomUserTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 4 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)]));
+        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 4 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)]));
     }
 
     /**
@@ -260,7 +266,7 @@ class RoomUserTableMap extends TableMap
         ];
         $pks[] = (int) $row[
             $indexType == TableMap::TYPE_NUM
-                ? 3 + $offset
+                ? 4 + $offset
                 : self::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)
         ];
 
@@ -367,11 +373,13 @@ class RoomUserTableMap extends TableMap
             $criteria->addSelectColumn(RoomUserTableMap::COL_ROOMUSERID);
             $criteria->addSelectColumn(RoomUserTableMap::COL_VISIBLENAME);
             $criteria->addSelectColumn(RoomUserTableMap::COL_REGISTEREDUSERID);
+            $criteria->addSelectColumn(RoomUserTableMap::COL_HASVOTED);
             $criteria->addSelectColumn(RoomUserTableMap::COL_ROOMID);
         } else {
             $criteria->addSelectColumn($alias . '.RoomUserId');
             $criteria->addSelectColumn($alias . '.VisibleName');
             $criteria->addSelectColumn($alias . '.RegisteredUserId');
+            $criteria->addSelectColumn($alias . '.HasVoted');
             $criteria->addSelectColumn($alias . '.RoomId');
         }
     }

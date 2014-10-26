@@ -47,7 +47,8 @@
         <column name="RoomUserId" type="integer" required="true" primaryKey="true" autoIncrement="true"/>
         <column name="VisibleName" type="varchar" size="32" required="true" />
         <column name="RegisteredUserId" primaryKey="true"  type="integer" required="true"/>
-        <foreign-key foreignTable="RegisteredUser">
+	 <column name="HasVoted" type="boolean" required="true"/>        
+<foreign-key foreignTable="RegisteredUser">
             <reference local="RegisteredUserId" foreign="RegisteredUserId"/>
         </foreign-key>
         <column name="RoomId" primaryKey="true" type="integer" required="true"/>
