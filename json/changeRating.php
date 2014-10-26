@@ -44,7 +44,4 @@ use Chatstorm\Util as Util;
     $roomUser->setHasvoted( true );
     $roomUser->save();
 
-if( $res )
-        echo Util::ReturnJSONSuccess();
-    else
-        Util::DieWithJSONError("Could not create new room.");
+    echo Util::ReturnJSONSuccess();
