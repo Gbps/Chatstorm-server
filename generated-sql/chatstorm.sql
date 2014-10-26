@@ -37,12 +37,17 @@ CREATE TABLE `Message`
     `MessageId` INTEGER NOT NULL AUTO_INCREMENT,
     `Text` VARCHAR(1024) NOT NULL,
     `RoomUserId` INTEGER NOT NULL,
+    `RoomId` INTEGER NOT NULL,
     `PostTime` DATETIME NOT NULL,
     PRIMARY KEY (`MessageId`),
     INDEX `Message_fi_041b9b` (`RoomUserId`),
+    INDEX `Message_fi_41e335` (`RoomId`),
     CONSTRAINT `Message_fk_041b9b`
         FOREIGN KEY (`RoomUserId`)
-        REFERENCES `RoomUser` (`RoomUserId`)
+        REFERENCES `RoomUser` (`RoomUserId`),
+    CONSTRAINT `Message_fk_41e335`
+        FOREIGN KEY (`RoomId`)
+        REFERENCES `Room` (`RoomId`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
@@ -62,28 +67,6 @@ CREATE TABLE `Room`
     `LocationLongitude` DOUBLE NOT NULL,
     `LocationAccuracy` INTEGER NOT NULL,
     PRIMARY KEY (`RoomId`)
-) ENGINE=InnoDB;
-
--- ---------------------------------------------------------------------
--- MessageStack
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `MessageStack`;
-
-CREATE TABLE `MessageStack`
-(
-    `MessageStackId` INTEGER NOT NULL AUTO_INCREMENT,
-    `MessageId` INTEGER NOT NULL,
-    `RoomId` INTEGER NOT NULL,
-    PRIMARY KEY (`MessageStackId`),
-    INDEX `MessageStack_fi_5de2ca` (`MessageId`),
-    INDEX `MessageStack_fi_41e335` (`RoomId`),
-    CONSTRAINT `MessageStack_fk_5de2ca`
-        FOREIGN KEY (`MessageId`)
-        REFERENCES `Message` (`MessageId`),
-    CONSTRAINT `MessageStack_fk_41e335`
-        FOREIGN KEY (`RoomId`)
-        REFERENCES `Room` (`RoomId`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------

@@ -23,11 +23,13 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMessageQuery orderByMessageid($order = Criteria::ASC) Order by the MessageId column
  * @method     ChildMessageQuery orderByText($order = Criteria::ASC) Order by the Text column
  * @method     ChildMessageQuery orderByRoomuserid($order = Criteria::ASC) Order by the RoomUserId column
+ * @method     ChildMessageQuery orderByRoomid($order = Criteria::ASC) Order by the RoomId column
  * @method     ChildMessageQuery orderByPosttime($order = Criteria::ASC) Order by the PostTime column
  *
  * @method     ChildMessageQuery groupByMessageid() Group by the MessageId column
  * @method     ChildMessageQuery groupByText() Group by the Text column
  * @method     ChildMessageQuery groupByRoomuserid() Group by the RoomUserId column
+ * @method     ChildMessageQuery groupByRoomid() Group by the RoomId column
  * @method     ChildMessageQuery groupByPosttime() Group by the PostTime column
  *
  * @method     ChildMessageQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -38,11 +40,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMessageQuery rightJoinRoomUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RoomUser relation
  * @method     ChildMessageQuery innerJoinRoomUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RoomUser relation
  *
- * @method     ChildMessageQuery leftJoinMessageStack($relationAlias = null) Adds a LEFT JOIN clause to the query using the MessageStack relation
- * @method     ChildMessageQuery rightJoinMessageStack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MessageStack relation
- * @method     ChildMessageQuery innerJoinMessageStack($relationAlias = null) Adds a INNER JOIN clause to the query using the MessageStack relation
+ * @method     ChildMessageQuery leftJoinRoom($relationAlias = null) Adds a LEFT JOIN clause to the query using the Room relation
+ * @method     ChildMessageQuery rightJoinRoom($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Room relation
+ * @method     ChildMessageQuery innerJoinRoom($relationAlias = null) Adds a INNER JOIN clause to the query using the Room relation
  *
- * @method     \RoomUserQuery|\MessageStackQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \RoomUserQuery|\RoomQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildMessage findOne(ConnectionInterface $con = null) Return the first ChildMessage matching the query
  * @method     ChildMessage findOneOrCreate(ConnectionInterface $con = null) Return the first ChildMessage matching the query, or a new ChildMessage object populated from the query conditions when no match is found
@@ -50,12 +52,14 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildMessage findOneByMessageid(int $MessageId) Return the first ChildMessage filtered by the MessageId column
  * @method     ChildMessage findOneByText(string $Text) Return the first ChildMessage filtered by the Text column
  * @method     ChildMessage findOneByRoomuserid(int $RoomUserId) Return the first ChildMessage filtered by the RoomUserId column
+ * @method     ChildMessage findOneByRoomid(int $RoomId) Return the first ChildMessage filtered by the RoomId column
  * @method     ChildMessage findOneByPosttime(string $PostTime) Return the first ChildMessage filtered by the PostTime column
  *
  * @method     ChildMessage[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildMessage objects based on current ModelCriteria
  * @method     ChildMessage[]|ObjectCollection findByMessageid(int $MessageId) Return ChildMessage objects filtered by the MessageId column
  * @method     ChildMessage[]|ObjectCollection findByText(string $Text) Return ChildMessage objects filtered by the Text column
  * @method     ChildMessage[]|ObjectCollection findByRoomuserid(int $RoomUserId) Return ChildMessage objects filtered by the RoomUserId column
+ * @method     ChildMessage[]|ObjectCollection findByRoomid(int $RoomId) Return ChildMessage objects filtered by the RoomId column
  * @method     ChildMessage[]|ObjectCollection findByPosttime(string $PostTime) Return ChildMessage objects filtered by the PostTime column
  * @method     ChildMessage[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
@@ -148,7 +152,7 @@ abstract class MessageQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT MessageId, Text, RoomUserId, PostTime FROM Message WHERE MessageId = :p0';
+        $sql = 'SELECT MessageId, Text, RoomUserId, RoomId, PostTime FROM Message WHERE MessageId = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -352,6 +356,49 @@ abstract class MessageQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the RoomId column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByRoomid(1234); // WHERE RoomId = 1234
+     * $query->filterByRoomid(array(12, 34)); // WHERE RoomId IN (12, 34)
+     * $query->filterByRoomid(array('min' => 12)); // WHERE RoomId > 12
+     * </code>
+     *
+     * @see       filterByRoom()
+     *
+     * @param     mixed $roomid The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildMessageQuery The current query, for fluid interface
+     */
+    public function filterByRoomid($roomid = null, $comparison = null)
+    {
+        if (is_array($roomid)) {
+            $useMinMax = false;
+            if (isset($roomid['min'])) {
+                $this->addUsingAlias(MessageTableMap::COL_ROOMID, $roomid['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($roomid['max'])) {
+                $this->addUsingAlias(MessageTableMap::COL_ROOMID, $roomid['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MessageTableMap::COL_ROOMID, $roomid, $comparison);
+    }
+
+    /**
      * Filter the query on the PostTime column
      *
      * Example usage:
@@ -472,40 +519,44 @@ abstract class MessageQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related \MessageStack object
+     * Filter the query by a related \Room object
      *
-     * @param \MessageStack|ObjectCollection $messageStack  the related object to use as filter
+     * @param \Room|ObjectCollection $room The related object(s) to use as filter
      * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
      *
      * @return ChildMessageQuery The current query, for fluid interface
      */
-    public function filterByMessageStack($messageStack, $comparison = null)
+    public function filterByRoom($room, $comparison = null)
     {
-        if ($messageStack instanceof \MessageStack) {
+        if ($room instanceof \Room) {
             return $this
-                ->addUsingAlias(MessageTableMap::COL_MESSAGEID, $messageStack->getMessageid(), $comparison);
-        } elseif ($messageStack instanceof ObjectCollection) {
+                ->addUsingAlias(MessageTableMap::COL_ROOMID, $room->getRoomid(), $comparison);
+        } elseif ($room instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
             return $this
-                ->useMessageStackQuery()
-                ->filterByPrimaryKeys($messageStack->getPrimaryKeys())
-                ->endUse();
+                ->addUsingAlias(MessageTableMap::COL_ROOMID, $room->toKeyValue('PrimaryKey', 'Roomid'), $comparison);
         } else {
-            throw new PropelException('filterByMessageStack() only accepts arguments of type \MessageStack or Collection');
+            throw new PropelException('filterByRoom() only accepts arguments of type \Room or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the MessageStack relation
+     * Adds a JOIN clause to the query using the Room relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildMessageQuery The current query, for fluid interface
      */
-    public function joinMessageStack($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinRoom($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('MessageStack');
+        $relationMap = $tableMap->getRelation('Room');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -520,14 +571,14 @@ abstract class MessageQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'MessageStack');
+            $this->addJoinObject($join, 'Room');
         }
 
         return $this;
     }
 
     /**
-     * Use the MessageStack relation MessageStack object
+     * Use the Room relation Room object
      *
      * @see useQuery()
      *
@@ -535,13 +586,13 @@ abstract class MessageQuery extends ModelCriteria
      *                                   to be used as main alias in the secondary query
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
-     * @return \MessageStackQuery A secondary query class using the current class as primary query
+     * @return \RoomQuery A secondary query class using the current class as primary query
      */
-    public function useMessageStackQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useRoomQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinMessageStack($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'MessageStack', '\MessageStackQuery');
+            ->joinRoom($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Room', '\RoomQuery');
     }
 
     /**

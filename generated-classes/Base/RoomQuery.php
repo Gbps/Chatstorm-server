@@ -42,15 +42,15 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildRoomQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
- * @method     ChildRoomQuery leftJoinMessageStack($relationAlias = null) Adds a LEFT JOIN clause to the query using the MessageStack relation
- * @method     ChildRoomQuery rightJoinMessageStack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MessageStack relation
- * @method     ChildRoomQuery innerJoinMessageStack($relationAlias = null) Adds a INNER JOIN clause to the query using the MessageStack relation
+ * @method     ChildRoomQuery leftJoinMessage($relationAlias = null) Adds a LEFT JOIN clause to the query using the Message relation
+ * @method     ChildRoomQuery rightJoinMessage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Message relation
+ * @method     ChildRoomQuery innerJoinMessage($relationAlias = null) Adds a INNER JOIN clause to the query using the Message relation
  *
  * @method     ChildRoomQuery leftJoinRoomUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the RoomUser relation
  * @method     ChildRoomQuery rightJoinRoomUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RoomUser relation
  * @method     ChildRoomQuery innerJoinRoomUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RoomUser relation
  *
- * @method     \MessageStackQuery|\RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \MessageQuery|\RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRoom findOne(ConnectionInterface $con = null) Return the first ChildRoom matching the query
  * @method     ChildRoom findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRoom matching the query, or a new ChildRoom object populated from the query conditions when no match is found
@@ -587,40 +587,40 @@ abstract class RoomQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related \MessageStack object
+     * Filter the query by a related \Message object
      *
-     * @param \MessageStack|ObjectCollection $messageStack  the related object to use as filter
+     * @param \Message|ObjectCollection $message  the related object to use as filter
      * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return ChildRoomQuery The current query, for fluid interface
      */
-    public function filterByMessageStack($messageStack, $comparison = null)
+    public function filterByMessage($message, $comparison = null)
     {
-        if ($messageStack instanceof \MessageStack) {
+        if ($message instanceof \Message) {
             return $this
-                ->addUsingAlias(RoomTableMap::COL_ROOMID, $messageStack->getRoomid(), $comparison);
-        } elseif ($messageStack instanceof ObjectCollection) {
+                ->addUsingAlias(RoomTableMap::COL_ROOMID, $message->getRoomid(), $comparison);
+        } elseif ($message instanceof ObjectCollection) {
             return $this
-                ->useMessageStackQuery()
-                ->filterByPrimaryKeys($messageStack->getPrimaryKeys())
+                ->useMessageQuery()
+                ->filterByPrimaryKeys($message->getPrimaryKeys())
                 ->endUse();
         } else {
-            throw new PropelException('filterByMessageStack() only accepts arguments of type \MessageStack or Collection');
+            throw new PropelException('filterByMessage() only accepts arguments of type \Message or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the MessageStack relation
+     * Adds a JOIN clause to the query using the Message relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildRoomQuery The current query, for fluid interface
      */
-    public function joinMessageStack($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinMessage($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('MessageStack');
+        $relationMap = $tableMap->getRelation('Message');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -635,14 +635,14 @@ abstract class RoomQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'MessageStack');
+            $this->addJoinObject($join, 'Message');
         }
 
         return $this;
     }
 
     /**
-     * Use the MessageStack relation MessageStack object
+     * Use the Message relation Message object
      *
      * @see useQuery()
      *
@@ -650,13 +650,13 @@ abstract class RoomQuery extends ModelCriteria
      *                                   to be used as main alias in the secondary query
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
-     * @return \MessageStackQuery A secondary query class using the current class as primary query
+     * @return \MessageQuery A secondary query class using the current class as primary query
      */
-    public function useMessageStackQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useMessageQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinMessageStack($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'MessageStack', '\MessageStackQuery');
+            ->joinMessage($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Message', '\MessageQuery');
     }
 
     /**

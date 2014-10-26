@@ -59,7 +59,7 @@ class MessageTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 5;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class MessageTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 5;
 
     /**
      * the column name for the MessageId field
@@ -85,6 +85,11 @@ class MessageTableMap extends TableMap
      * the column name for the RoomUserId field
      */
     const COL_ROOMUSERID = 'Message.RoomUserId';
+
+    /**
+     * the column name for the RoomId field
+     */
+    const COL_ROOMID = 'Message.RoomId';
 
     /**
      * the column name for the PostTime field
@@ -103,11 +108,11 @@ class MessageTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Messageid', 'Text', 'Roomuserid', 'Posttime', ),
-        self::TYPE_CAMELNAME     => array('messageid', 'text', 'roomuserid', 'posttime', ),
-        self::TYPE_COLNAME       => array(MessageTableMap::COL_MESSAGEID, MessageTableMap::COL_TEXT, MessageTableMap::COL_ROOMUSERID, MessageTableMap::COL_POSTTIME, ),
-        self::TYPE_FIELDNAME     => array('MessageId', 'Text', 'RoomUserId', 'PostTime', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Messageid', 'Text', 'Roomuserid', 'Roomid', 'Posttime', ),
+        self::TYPE_CAMELNAME     => array('messageid', 'text', 'roomuserid', 'roomid', 'posttime', ),
+        self::TYPE_COLNAME       => array(MessageTableMap::COL_MESSAGEID, MessageTableMap::COL_TEXT, MessageTableMap::COL_ROOMUSERID, MessageTableMap::COL_ROOMID, MessageTableMap::COL_POSTTIME, ),
+        self::TYPE_FIELDNAME     => array('MessageId', 'Text', 'RoomUserId', 'RoomId', 'PostTime', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -117,11 +122,11 @@ class MessageTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Messageid' => 0, 'Text' => 1, 'Roomuserid' => 2, 'Posttime' => 3, ),
-        self::TYPE_CAMELNAME     => array('messageid' => 0, 'text' => 1, 'roomuserid' => 2, 'posttime' => 3, ),
-        self::TYPE_COLNAME       => array(MessageTableMap::COL_MESSAGEID => 0, MessageTableMap::COL_TEXT => 1, MessageTableMap::COL_ROOMUSERID => 2, MessageTableMap::COL_POSTTIME => 3, ),
-        self::TYPE_FIELDNAME     => array('MessageId' => 0, 'Text' => 1, 'RoomUserId' => 2, 'PostTime' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Messageid' => 0, 'Text' => 1, 'Roomuserid' => 2, 'Roomid' => 3, 'Posttime' => 4, ),
+        self::TYPE_CAMELNAME     => array('messageid' => 0, 'text' => 1, 'roomuserid' => 2, 'roomid' => 3, 'posttime' => 4, ),
+        self::TYPE_COLNAME       => array(MessageTableMap::COL_MESSAGEID => 0, MessageTableMap::COL_TEXT => 1, MessageTableMap::COL_ROOMUSERID => 2, MessageTableMap::COL_ROOMID => 3, MessageTableMap::COL_POSTTIME => 4, ),
+        self::TYPE_FIELDNAME     => array('MessageId' => 0, 'Text' => 1, 'RoomUserId' => 2, 'RoomId' => 3, 'PostTime' => 4, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -140,10 +145,12 @@ class MessageTableMap extends TableMap
         $this->setClassName('\\Message');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
+        $this->setIsCrossRef(true);
         // columns
         $this->addPrimaryKey('MessageId', 'Messageid', 'INTEGER', true, null, null);
         $this->addColumn('Text', 'Text', 'VARCHAR', true, 1024, null);
         $this->addForeignKey('RoomUserId', 'Roomuserid', 'INTEGER', 'RoomUser', 'RoomUserId', true, null, null);
+        $this->addForeignKey('RoomId', 'Roomid', 'INTEGER', 'Room', 'RoomId', true, null, null);
         $this->addColumn('PostTime', 'Posttime', 'TIMESTAMP', true, null, null);
     } // initialize()
 
@@ -153,7 +160,7 @@ class MessageTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('RoomUser', '\\RoomUser', RelationMap::MANY_TO_ONE, array('RoomUserId' => 'RoomUserId', ), null, null);
-        $this->addRelation('MessageStack', '\\MessageStack', RelationMap::ONE_TO_MANY, array('MessageId' => 'MessageId', ), null, null, 'MessageStacks');
+        $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_ONE, array('RoomId' => 'RoomId', ), null, null);
     } // buildRelations()
 
     /**
@@ -300,11 +307,13 @@ class MessageTableMap extends TableMap
             $criteria->addSelectColumn(MessageTableMap::COL_MESSAGEID);
             $criteria->addSelectColumn(MessageTableMap::COL_TEXT);
             $criteria->addSelectColumn(MessageTableMap::COL_ROOMUSERID);
+            $criteria->addSelectColumn(MessageTableMap::COL_ROOMID);
             $criteria->addSelectColumn(MessageTableMap::COL_POSTTIME);
         } else {
             $criteria->addSelectColumn($alias . '.MessageId');
             $criteria->addSelectColumn($alias . '.Text');
             $criteria->addSelectColumn($alias . '.RoomUserId');
+            $criteria->addSelectColumn($alias . '.RoomId');
             $criteria->addSelectColumn($alias . '.PostTime');
         }
     }
