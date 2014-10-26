@@ -21,7 +21,7 @@ class RoomUser extends BaseRoomUser
 
     public static function GetAdjective()
     {
-        $lines = file("../include/adjectives.txt", FILE_IGNORE_NEW_LINES);
+        $lines = file(__DIR__ . "/../include/adjectives.txt", FILE_IGNORE_NEW_LINES);
         if( $lines == false) Util::DieWithJSONError("Could not read adjectives.txt");
         $randomFind = array_rand( $lines );
 
@@ -33,7 +33,7 @@ class RoomUser extends BaseRoomUser
 
     public static function GetNoun()
     {
-        $lines = file("../include/nouns.txt", FILE_IGNORE_NEW_LINES);
+        $lines = file(__DIR__ . "/../include/nouns.txt", FILE_IGNORE_NEW_LINES);
         if( $lines == false) Util::DieWithJSONError("Could not read nouns.txt");
         $randomFind = array_rand( $lines );
 
