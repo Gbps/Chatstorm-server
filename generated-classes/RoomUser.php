@@ -23,9 +23,9 @@ class RoomUser extends BaseRoomUser
     {
         $lines = file(__DIR__ . "/../include/adjectives.txt", FILE_IGNORE_NEW_LINES);
         if( $lines == false) Util::DieWithJSONError("Could not read adjectives.txt");
-        $randomFind = array_rand( $lines );
+        $randomFind = $lines[array_rand( $lines )];
 
-        //$randomFind = ucfirst(str_replace(' ', '', $randomFind));
+        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
         return $randomFind;
 
@@ -35,9 +35,9 @@ class RoomUser extends BaseRoomUser
     {
         $lines = file(__DIR__ . "/../include/nouns.txt", FILE_IGNORE_NEW_LINES);
         if( $lines == false) Util::DieWithJSONError("Could not read nouns.txt");
-        $randomFind = array_rand( $lines );
+        $randomFind = $lines[array_rand( $lines )];
 
-        //$randomFind = ucfirst(str_replace(' ', '', $randomFind));
+        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
 
         return $randomFind;
 
