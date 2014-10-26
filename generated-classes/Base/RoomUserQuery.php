@@ -23,11 +23,13 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomUserQuery orderByRoomuserid($order = Criteria::ASC) Order by the RoomUserId column
  * @method     ChildRoomUserQuery orderByVisiblename($order = Criteria::ASC) Order by the VisibleName column
  * @method     ChildRoomUserQuery orderByRegistereduserid($order = Criteria::ASC) Order by the RegisteredUserId column
+ * @method     ChildRoomUserQuery orderByHasvoted($order = Criteria::ASC) Order by the HasVoted column
  * @method     ChildRoomUserQuery orderByRoomid($order = Criteria::ASC) Order by the RoomId column
  *
  * @method     ChildRoomUserQuery groupByRoomuserid() Group by the RoomUserId column
  * @method     ChildRoomUserQuery groupByVisiblename() Group by the VisibleName column
  * @method     ChildRoomUserQuery groupByRegistereduserid() Group by the RegisteredUserId column
+ * @method     ChildRoomUserQuery groupByHasvoted() Group by the HasVoted column
  * @method     ChildRoomUserQuery groupByRoomid() Group by the RoomId column
  *
  * @method     ChildRoomUserQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -50,12 +52,14 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomUser findOneByRoomuserid(int $RoomUserId) Return the first ChildRoomUser filtered by the RoomUserId column
  * @method     ChildRoomUser findOneByVisiblename(string $VisibleName) Return the first ChildRoomUser filtered by the VisibleName column
  * @method     ChildRoomUser findOneByRegistereduserid(int $RegisteredUserId) Return the first ChildRoomUser filtered by the RegisteredUserId column
+ * @method     ChildRoomUser findOneByHasvoted(boolean $HasVoted) Return the first ChildRoomUser filtered by the HasVoted column
  * @method     ChildRoomUser findOneByRoomid(int $RoomId) Return the first ChildRoomUser filtered by the RoomId column
  *
  * @method     ChildRoomUser[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildRoomUser objects based on current ModelCriteria
  * @method     ChildRoomUser[]|ObjectCollection findByRoomuserid(int $RoomUserId) Return ChildRoomUser objects filtered by the RoomUserId column
  * @method     ChildRoomUser[]|ObjectCollection findByVisiblename(string $VisibleName) Return ChildRoomUser objects filtered by the VisibleName column
  * @method     ChildRoomUser[]|ObjectCollection findByRegistereduserid(int $RegisteredUserId) Return ChildRoomUser objects filtered by the RegisteredUserId column
+ * @method     ChildRoomUser[]|ObjectCollection findByHasvoted(boolean $HasVoted) Return ChildRoomUser objects filtered by the HasVoted column
  * @method     ChildRoomUser[]|ObjectCollection findByRoomid(int $RoomId) Return ChildRoomUser objects filtered by the RoomId column
  * @method     ChildRoomUser[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
@@ -148,7 +152,7 @@ abstract class RoomUserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, RoomId FROM RoomUser WHERE RoomUserId = :p0 AND RegisteredUserId = :p1 AND RoomId = :p2';
+        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, HasVoted, RoomId FROM RoomUser WHERE RoomUserId = :p0 AND RegisteredUserId = :p1 AND RoomId = :p2';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
@@ -365,6 +369,33 @@ abstract class RoomUserQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $registereduserid, $comparison);
+    }
+
+    /**
+     * Filter the query on the HasVoted column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByHasvoted(true); // WHERE HasVoted = true
+     * $query->filterByHasvoted('yes'); // WHERE HasVoted = true
+     * </code>
+     *
+     * @param     boolean|string $hasvoted The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildRoomUserQuery The current query, for fluid interface
+     */
+    public function filterByHasvoted($hasvoted = null, $comparison = null)
+    {
+        if (is_string($hasvoted)) {
+            $hasvoted = in_array(strtolower($hasvoted), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(RoomUserTableMap::COL_HASVOTED, $hasvoted, $comparison);
     }
 
     /**

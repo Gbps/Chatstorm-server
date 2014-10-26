@@ -82,6 +82,12 @@ abstract class RoomUser implements ActiveRecordInterface
     protected $registereduserid;
 
     /**
+     * The value for the hasvoted field.
+     * @var        boolean
+     */
+    protected $hasvoted;
+
+    /**
      * The value for the roomid field.
      * @var        int
      */
@@ -353,6 +359,26 @@ abstract class RoomUser implements ActiveRecordInterface
     }
 
     /**
+     * Get the [hasvoted] column value.
+     *
+     * @return boolean
+     */
+    public function getHasvoted()
+    {
+        return $this->hasvoted;
+    }
+
+    /**
+     * Get the [hasvoted] column value.
+     *
+     * @return boolean
+     */
+    public function isHasvoted()
+    {
+        return $this->getHasvoted();
+    }
+
+    /**
      * Get the [roomid] column value.
      *
      * @return int
@@ -427,6 +453,34 @@ abstract class RoomUser implements ActiveRecordInterface
     } // setRegistereduserid()
 
     /**
+     * Sets the value of the [hasvoted] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param  boolean|integer|string $v The new value
+     * @return $this|\RoomUser The current object (for fluent API support)
+     */
+    public function setHasvoted($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->hasvoted !== $v) {
+            $this->hasvoted = $v;
+            $this->modifiedColumns[RoomUserTableMap::COL_HASVOTED] = true;
+        }
+
+        return $this;
+    } // setHasvoted()
+
+    /**
      * Set the value of [roomid] column.
      *
      * @param  int $v new value
@@ -495,7 +549,10 @@ abstract class RoomUser implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : RoomUserTableMap::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)];
             $this->registereduserid = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : RoomUserTableMap::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : RoomUserTableMap::translateFieldName('Hasvoted', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->hasvoted = (null !== $col) ? (boolean) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : RoomUserTableMap::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
             $this->roomid = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
@@ -505,7 +562,7 @@ abstract class RoomUser implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 4; // 4 = RoomUserTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 5; // 5 = RoomUserTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\RoomUser'), 0, $e);
@@ -738,6 +795,9 @@ abstract class RoomUser implements ActiveRecordInterface
         if ($this->isColumnModified(RoomUserTableMap::COL_REGISTEREDUSERID)) {
             $modifiedColumns[':p' . $index++]  = 'RegisteredUserId';
         }
+        if ($this->isColumnModified(RoomUserTableMap::COL_HASVOTED)) {
+            $modifiedColumns[':p' . $index++]  = 'HasVoted';
+        }
         if ($this->isColumnModified(RoomUserTableMap::COL_ROOMID)) {
             $modifiedColumns[':p' . $index++]  = 'RoomId';
         }
@@ -760,6 +820,9 @@ abstract class RoomUser implements ActiveRecordInterface
                         break;
                     case 'RegisteredUserId':
                         $stmt->bindValue($identifier, $this->registereduserid, PDO::PARAM_INT);
+                        break;
+                    case 'HasVoted':
+                        $stmt->bindValue($identifier, (int) $this->hasvoted, PDO::PARAM_INT);
                         break;
                     case 'RoomId':
                         $stmt->bindValue($identifier, $this->roomid, PDO::PARAM_INT);
@@ -836,6 +899,9 @@ abstract class RoomUser implements ActiveRecordInterface
                 return $this->getRegistereduserid();
                 break;
             case 3:
+                return $this->getHasvoted();
+                break;
+            case 4:
                 return $this->getRoomid();
                 break;
             default:
@@ -871,7 +937,8 @@ abstract class RoomUser implements ActiveRecordInterface
             $keys[0] => $this->getRoomuserid(),
             $keys[1] => $this->getVisiblename(),
             $keys[2] => $this->getRegistereduserid(),
-            $keys[3] => $this->getRoomid(),
+            $keys[3] => $this->getHasvoted(),
+            $keys[4] => $this->getRoomid(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -953,6 +1020,9 @@ abstract class RoomUser implements ActiveRecordInterface
                 $this->setRegistereduserid($value);
                 break;
             case 3:
+                $this->setHasvoted($value);
+                break;
+            case 4:
                 $this->setRoomid($value);
                 break;
         } // switch()
@@ -991,7 +1061,10 @@ abstract class RoomUser implements ActiveRecordInterface
             $this->setRegistereduserid($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setRoomid($arr[$keys[3]]);
+            $this->setHasvoted($arr[$keys[3]]);
+        }
+        if (array_key_exists($keys[4], $arr)) {
+            $this->setRoomid($arr[$keys[4]]);
         }
     }
 
@@ -1036,6 +1109,9 @@ abstract class RoomUser implements ActiveRecordInterface
         }
         if ($this->isColumnModified(RoomUserTableMap::COL_REGISTEREDUSERID)) {
             $criteria->add(RoomUserTableMap::COL_REGISTEREDUSERID, $this->registereduserid);
+        }
+        if ($this->isColumnModified(RoomUserTableMap::COL_HASVOTED)) {
+            $criteria->add(RoomUserTableMap::COL_HASVOTED, $this->hasvoted);
         }
         if ($this->isColumnModified(RoomUserTableMap::COL_ROOMID)) {
             $criteria->add(RoomUserTableMap::COL_ROOMID, $this->roomid);
@@ -1154,6 +1230,7 @@ abstract class RoomUser implements ActiveRecordInterface
     {
         $copyObj->setVisiblename($this->getVisiblename());
         $copyObj->setRegistereduserid($this->getRegistereduserid());
+        $copyObj->setHasvoted($this->getHasvoted());
         $copyObj->setRoomid($this->getRoomid());
         if ($makeNew) {
             $copyObj->setNew(true);
@@ -1303,6 +1380,7 @@ abstract class RoomUser implements ActiveRecordInterface
         $this->roomuserid = null;
         $this->visiblename = null;
         $this->registereduserid = null;
+        $this->hasvoted = null;
         $this->roomid = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();

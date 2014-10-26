@@ -81,6 +81,7 @@ CREATE TABLE `RoomUser`
     `RoomUserId` INTEGER NOT NULL AUTO_INCREMENT,
     `VisibleName` VARCHAR(32) NOT NULL,
     `RegisteredUserId` INTEGER NOT NULL,
+    `HasVoted` TINYINT(1) NOT NULL,
     `RoomId` INTEGER NOT NULL,
     PRIMARY KEY (`RoomUserId`,`RegisteredUserId`,`RoomId`),
     INDEX `RoomUser_fi_bb0d7a` (`RegisteredUserId`),
