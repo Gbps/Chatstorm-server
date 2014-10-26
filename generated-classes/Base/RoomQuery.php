@@ -22,8 +22,9 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildRoomQuery orderByRoomid($order = Criteria::ASC) Order by the RoomId column
  * @method     ChildRoomQuery orderByCreateddate($order = Criteria::ASC) Order by the CreatedDate column
+ * @method     ChildRoomQuery orderByCreatoruserid($order = Criteria::ASC) Order by the CreatorUserId column
+ * @method     ChildRoomQuery orderByTopic($order = Criteria::ASC) Order by the Topic column
  * @method     ChildRoomQuery orderByTimeout($order = Criteria::ASC) Order by the Timeout column
- * @method     ChildRoomQuery orderByRoomusersid($order = Criteria::ASC) Order by the RoomUsersId column
  * @method     ChildRoomQuery orderByRating($order = Criteria::ASC) Order by the Rating column
  * @method     ChildRoomQuery orderByLocationlatitude($order = Criteria::ASC) Order by the LocationLatitude column
  * @method     ChildRoomQuery orderByLocationlongitude($order = Criteria::ASC) Order by the LocationLongitude column
@@ -31,8 +32,9 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildRoomQuery groupByRoomid() Group by the RoomId column
  * @method     ChildRoomQuery groupByCreateddate() Group by the CreatedDate column
+ * @method     ChildRoomQuery groupByCreatoruserid() Group by the CreatorUserId column
+ * @method     ChildRoomQuery groupByTopic() Group by the Topic column
  * @method     ChildRoomQuery groupByTimeout() Group by the Timeout column
- * @method     ChildRoomQuery groupByRoomusersid() Group by the RoomUsersId column
  * @method     ChildRoomQuery groupByRating() Group by the Rating column
  * @method     ChildRoomQuery groupByLocationlatitude() Group by the LocationLatitude column
  * @method     ChildRoomQuery groupByLocationlongitude() Group by the LocationLongitude column
@@ -42,6 +44,10 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildRoomQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
+ * @method     ChildRoomQuery leftJoinRegisteredUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the RegisteredUser relation
+ * @method     ChildRoomQuery rightJoinRegisteredUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RegisteredUser relation
+ * @method     ChildRoomQuery innerJoinRegisteredUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RegisteredUser relation
+ *
  * @method     ChildRoomQuery leftJoinMessage($relationAlias = null) Adds a LEFT JOIN clause to the query using the Message relation
  * @method     ChildRoomQuery rightJoinMessage($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Message relation
  * @method     ChildRoomQuery innerJoinMessage($relationAlias = null) Adds a INNER JOIN clause to the query using the Message relation
@@ -50,15 +56,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoomQuery rightJoinRoomUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RoomUser relation
  * @method     ChildRoomQuery innerJoinRoomUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RoomUser relation
  *
- * @method     \MessageQuery|\RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \RegisteredUserQuery|\MessageQuery|\RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRoom findOne(ConnectionInterface $con = null) Return the first ChildRoom matching the query
  * @method     ChildRoom findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRoom matching the query, or a new ChildRoom object populated from the query conditions when no match is found
  *
  * @method     ChildRoom findOneByRoomid(int $RoomId) Return the first ChildRoom filtered by the RoomId column
  * @method     ChildRoom findOneByCreateddate(string $CreatedDate) Return the first ChildRoom filtered by the CreatedDate column
+ * @method     ChildRoom findOneByCreatoruserid(int $CreatorUserId) Return the first ChildRoom filtered by the CreatorUserId column
+ * @method     ChildRoom findOneByTopic(string $Topic) Return the first ChildRoom filtered by the Topic column
  * @method     ChildRoom findOneByTimeout(string $Timeout) Return the first ChildRoom filtered by the Timeout column
- * @method     ChildRoom findOneByRoomusersid(int $RoomUsersId) Return the first ChildRoom filtered by the RoomUsersId column
  * @method     ChildRoom findOneByRating(int $Rating) Return the first ChildRoom filtered by the Rating column
  * @method     ChildRoom findOneByLocationlatitude(double $LocationLatitude) Return the first ChildRoom filtered by the LocationLatitude column
  * @method     ChildRoom findOneByLocationlongitude(double $LocationLongitude) Return the first ChildRoom filtered by the LocationLongitude column
@@ -67,8 +74,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRoom[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildRoom objects based on current ModelCriteria
  * @method     ChildRoom[]|ObjectCollection findByRoomid(int $RoomId) Return ChildRoom objects filtered by the RoomId column
  * @method     ChildRoom[]|ObjectCollection findByCreateddate(string $CreatedDate) Return ChildRoom objects filtered by the CreatedDate column
+ * @method     ChildRoom[]|ObjectCollection findByCreatoruserid(int $CreatorUserId) Return ChildRoom objects filtered by the CreatorUserId column
+ * @method     ChildRoom[]|ObjectCollection findByTopic(string $Topic) Return ChildRoom objects filtered by the Topic column
  * @method     ChildRoom[]|ObjectCollection findByTimeout(string $Timeout) Return ChildRoom objects filtered by the Timeout column
- * @method     ChildRoom[]|ObjectCollection findByRoomusersid(int $RoomUsersId) Return ChildRoom objects filtered by the RoomUsersId column
  * @method     ChildRoom[]|ObjectCollection findByRating(int $Rating) Return ChildRoom objects filtered by the Rating column
  * @method     ChildRoom[]|ObjectCollection findByLocationlatitude(double $LocationLatitude) Return ChildRoom objects filtered by the LocationLatitude column
  * @method     ChildRoom[]|ObjectCollection findByLocationlongitude(double $LocationLongitude) Return ChildRoom objects filtered by the LocationLongitude column
@@ -121,10 +129,10 @@ abstract class RoomQuery extends ModelCriteria
      * Go fast if the query is untouched.
      *
      * <code>
-     * $obj  = $c->findPk(12, $con);
+     * $obj = $c->findPk(array(12, 34), $con);
      * </code>
      *
-     * @param mixed $key Primary key to use for the query
+     * @param array[$RoomId, $CreatorUserId] $key Primary key to use for the query
      * @param ConnectionInterface $con an optional connection object
      *
      * @return ChildRoom|array|mixed the result, formatted by the current formatter
@@ -134,7 +142,7 @@ abstract class RoomQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = RoomTableMap::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = RoomTableMap::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -164,10 +172,11 @@ abstract class RoomQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT RoomId, CreatedDate, Timeout, RoomUsersId, Rating, LocationLatitude, LocationLongitude, LocationAccuracy FROM Room WHERE RoomId = :p0';
+        $sql = 'SELECT RoomId, CreatedDate, CreatorUserId, Topic, Timeout, Rating, LocationLatitude, LocationLongitude, LocationAccuracy FROM Room WHERE RoomId = :p0 AND CreatorUserId = :p1';
         try {
             $stmt = $con->prepare($sql);
-            $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
+            $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
+            $stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -178,7 +187,7 @@ abstract class RoomQuery extends ModelCriteria
             /** @var ChildRoom $obj */
             $obj = new ChildRoom();
             $obj->hydrate($row);
-            RoomTableMap::addInstanceToPool($obj, (string) $key);
+            RoomTableMap::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1])));
         }
         $stmt->closeCursor();
 
@@ -207,7 +216,7 @@ abstract class RoomQuery extends ModelCriteria
     /**
      * Find objects by primary key
      * <code>
-     * $objs = $c->findPks(array(12, 56, 832), $con);
+     * $objs = $c->findPks(array(array(12, 56), array(832, 123), array(123, 456)), $con);
      * </code>
      * @param     array $keys Primary keys to use for the query
      * @param     ConnectionInterface $con an optional connection object
@@ -237,8 +246,10 @@ abstract class RoomQuery extends ModelCriteria
      */
     public function filterByPrimaryKey($key)
     {
+        $this->addUsingAlias(RoomTableMap::COL_ROOMID, $key[0], Criteria::EQUAL);
+        $this->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $key[1], Criteria::EQUAL);
 
-        return $this->addUsingAlias(RoomTableMap::COL_ROOMID, $key, Criteria::EQUAL);
+        return $this;
     }
 
     /**
@@ -250,8 +261,17 @@ abstract class RoomQuery extends ModelCriteria
      */
     public function filterByPrimaryKeys($keys)
     {
+        if (empty($keys)) {
+            return $this->add(null, '1<>1', Criteria::CUSTOM);
+        }
+        foreach ($keys as $key) {
+            $cton0 = $this->getNewCriterion(RoomTableMap::COL_ROOMID, $key[0], Criteria::EQUAL);
+            $cton1 = $this->getNewCriterion(RoomTableMap::COL_CREATORUSERID, $key[1], Criteria::EQUAL);
+            $cton0->addAnd($cton1);
+            $this->addOr($cton0);
+        }
 
-        return $this->addUsingAlias(RoomTableMap::COL_ROOMID, $keys, Criteria::IN);
+        return $this;
     }
 
     /**
@@ -339,6 +359,78 @@ abstract class RoomQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the CreatorUserId column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByCreatoruserid(1234); // WHERE CreatorUserId = 1234
+     * $query->filterByCreatoruserid(array(12, 34)); // WHERE CreatorUserId IN (12, 34)
+     * $query->filterByCreatoruserid(array('min' => 12)); // WHERE CreatorUserId > 12
+     * </code>
+     *
+     * @see       filterByRegisteredUser()
+     *
+     * @param     mixed $creatoruserid The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildRoomQuery The current query, for fluid interface
+     */
+    public function filterByCreatoruserid($creatoruserid = null, $comparison = null)
+    {
+        if (is_array($creatoruserid)) {
+            $useMinMax = false;
+            if (isset($creatoruserid['min'])) {
+                $this->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $creatoruserid['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($creatoruserid['max'])) {
+                $this->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $creatoruserid['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $creatoruserid, $comparison);
+    }
+
+    /**
+     * Filter the query on the Topic column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByTopic('fooValue');   // WHERE Topic = 'fooValue'
+     * $query->filterByTopic('%fooValue%'); // WHERE Topic LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $topic The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildRoomQuery The current query, for fluid interface
+     */
+    public function filterByTopic($topic = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($topic)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $topic)) {
+                $topic = str_replace('*', '%', $topic);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(RoomTableMap::COL_TOPIC, $topic, $comparison);
+    }
+
+    /**
      * Filter the query on the Timeout column
      *
      * Example usage:
@@ -379,47 +471,6 @@ abstract class RoomQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(RoomTableMap::COL_TIMEOUT, $timeout, $comparison);
-    }
-
-    /**
-     * Filter the query on the RoomUsersId column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByRoomusersid(1234); // WHERE RoomUsersId = 1234
-     * $query->filterByRoomusersid(array(12, 34)); // WHERE RoomUsersId IN (12, 34)
-     * $query->filterByRoomusersid(array('min' => 12)); // WHERE RoomUsersId > 12
-     * </code>
-     *
-     * @param     mixed $roomusersid The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildRoomQuery The current query, for fluid interface
-     */
-    public function filterByRoomusersid($roomusersid = null, $comparison = null)
-    {
-        if (is_array($roomusersid)) {
-            $useMinMax = false;
-            if (isset($roomusersid['min'])) {
-                $this->addUsingAlias(RoomTableMap::COL_ROOMUSERSID, $roomusersid['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($roomusersid['max'])) {
-                $this->addUsingAlias(RoomTableMap::COL_ROOMUSERSID, $roomusersid['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(RoomTableMap::COL_ROOMUSERSID, $roomusersid, $comparison);
     }
 
     /**
@@ -587,6 +638,83 @@ abstract class RoomQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related \RegisteredUser object
+     *
+     * @param \RegisteredUser|ObjectCollection $registeredUser The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildRoomQuery The current query, for fluid interface
+     */
+    public function filterByRegisteredUser($registeredUser, $comparison = null)
+    {
+        if ($registeredUser instanceof \RegisteredUser) {
+            return $this
+                ->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $registeredUser->getRegistereduserid(), $comparison);
+        } elseif ($registeredUser instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(RoomTableMap::COL_CREATORUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
+        } else {
+            throw new PropelException('filterByRegisteredUser() only accepts arguments of type \RegisteredUser or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the RegisteredUser relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRoomQuery The current query, for fluid interface
+     */
+    public function joinRegisteredUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('RegisteredUser');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'RegisteredUser');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the RegisteredUser relation RegisteredUser object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RegisteredUserQuery A secondary query class using the current class as primary query
+     */
+    public function useRegisteredUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinRegisteredUser($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'RegisteredUser', '\RegisteredUserQuery');
+    }
+
+    /**
      * Filter the query by a related \Message object
      *
      * @param \Message|ObjectCollection $message  the related object to use as filter
@@ -733,23 +861,6 @@ abstract class RoomQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related RegisteredUser object
-     * using the RoomUser table as cross reference
-     *
-     * @param RegisteredUser $registeredUser the related object to use as filter
-     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ChildRoomQuery The current query, for fluid interface
-     */
-    public function filterByRegisteredUser($registeredUser, $comparison = Criteria::EQUAL)
-    {
-        return $this
-            ->useRoomUserQuery()
-            ->filterByRegisteredUser($registeredUser, $comparison)
-            ->endUse();
-    }
-
-    /**
      * Exclude object from result
      *
      * @param   ChildRoom $room Object to remove from the list of results
@@ -759,7 +870,9 @@ abstract class RoomQuery extends ModelCriteria
     public function prune($room = null)
     {
         if ($room) {
-            $this->addUsingAlias(RoomTableMap::COL_ROOMID, $room->getRoomid(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond0', $this->getAliasedColName(RoomTableMap::COL_ROOMID), $room->getRoomid(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond1', $this->getAliasedColName(RoomTableMap::COL_CREATORUSERID), $room->getCreatoruserid(), Criteria::NOT_EQUAL);
+            $this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
         }
 
         return $this;

@@ -379,10 +379,6 @@ abstract class RoomUser implements ActiveRecordInterface
             $this->modifiedColumns[RoomUserTableMap::COL_ROOMUSERID] = true;
         }
 
-        if ($this->aRegisteredUser !== null && $this->aRegisteredUser->getRegistereduserid() !== $v) {
-            $this->aRegisteredUser = null;
-        }
-
         return $this;
     } // setRoomuserid()
 
@@ -421,6 +417,10 @@ abstract class RoomUser implements ActiveRecordInterface
         if ($this->registereduserid !== $v) {
             $this->registereduserid = $v;
             $this->modifiedColumns[RoomUserTableMap::COL_REGISTEREDUSERID] = true;
+        }
+
+        if ($this->aRegisteredUser !== null && $this->aRegisteredUser->getRegistereduserid() !== $v) {
+            $this->aRegisteredUser = null;
         }
 
         return $this;
@@ -527,7 +527,7 @@ abstract class RoomUser implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aRegisteredUser !== null && $this->roomuserid !== $this->aRegisteredUser->getRegistereduserid()) {
+        if ($this->aRegisteredUser !== null && $this->registereduserid !== $this->aRegisteredUser->getRegistereduserid()) {
             $this->aRegisteredUser = null;
         }
         if ($this->aRoom !== null && $this->roomid !== $this->aRoom->getRoomid()) {
@@ -1058,6 +1058,7 @@ abstract class RoomUser implements ActiveRecordInterface
     {
         $criteria = ChildRoomUserQuery::create();
         $criteria->add(RoomUserTableMap::COL_ROOMUSERID, $this->roomuserid);
+        $criteria->add(RoomUserTableMap::COL_REGISTEREDUSERID, $this->registereduserid);
         $criteria->add(RoomUserTableMap::COL_ROOMID, $this->roomid);
 
         return $criteria;
@@ -1072,12 +1073,13 @@ abstract class RoomUser implements ActiveRecordInterface
     public function hashCode()
     {
         $validPk = null !== $this->getRoomuserid() &&
+            null !== $this->getRegistereduserid() &&
             null !== $this->getRoomid();
 
         $validPrimaryKeyFKs = 2;
         $primaryKeyFKs = [];
 
-        //relation RoomUser_fk_f4d663 to table RegisteredUser
+        //relation RoomUser_fk_bb0d7a to table RegisteredUser
         if ($this->aRegisteredUser && $hash = spl_object_hash($this->aRegisteredUser)) {
             $primaryKeyFKs[] = $hash;
         } else {
@@ -1109,7 +1111,8 @@ abstract class RoomUser implements ActiveRecordInterface
     {
         $pks = array();
         $pks[0] = $this->getRoomuserid();
-        $pks[1] = $this->getRoomid();
+        $pks[1] = $this->getRegistereduserid();
+        $pks[2] = $this->getRoomid();
 
         return $pks;
     }
@@ -1123,7 +1126,8 @@ abstract class RoomUser implements ActiveRecordInterface
     public function setPrimaryKey($keys)
     {
         $this->setRoomuserid($keys[0]);
-        $this->setRoomid($keys[1]);
+        $this->setRegistereduserid($keys[1]);
+        $this->setRoomid($keys[2]);
     }
 
     /**
@@ -1132,7 +1136,7 @@ abstract class RoomUser implements ActiveRecordInterface
      */
     public function isPrimaryKeyNull()
     {
-        return (null === $this->getRoomuserid()) && (null === $this->getRoomid());
+        return (null === $this->getRoomuserid()) && (null === $this->getRegistereduserid()) && (null === $this->getRoomid());
     }
 
     /**
@@ -1189,9 +1193,9 @@ abstract class RoomUser implements ActiveRecordInterface
     public function setRegisteredUser(ChildRegisteredUser $v = null)
     {
         if ($v === null) {
-            $this->setRoomuserid(NULL);
+            $this->setRegistereduserid(NULL);
         } else {
-            $this->setRoomuserid($v->getRegistereduserid());
+            $this->setRegistereduserid($v->getRegistereduserid());
         }
 
         $this->aRegisteredUser = $v;
@@ -1216,8 +1220,8 @@ abstract class RoomUser implements ActiveRecordInterface
      */
     public function getRegisteredUser(ConnectionInterface $con = null)
     {
-        if ($this->aRegisteredUser === null && ($this->roomuserid !== null)) {
-            $this->aRegisteredUser = ChildRegisteredUserQuery::create()->findPk($this->roomuserid, $con);
+        if ($this->aRegisteredUser === null && ($this->registereduserid !== null)) {
+            $this->aRegisteredUser = ChildRegisteredUserQuery::create()->findPk($this->registereduserid, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
@@ -1268,7 +1272,9 @@ abstract class RoomUser implements ActiveRecordInterface
     public function getRoom(ConnectionInterface $con = null)
     {
         if ($this->aRoom === null && ($this->roomid !== null)) {
-            $this->aRoom = ChildRoomQuery::create()->findPk($this->roomid, $con);
+            $this->aRoom = ChildRoomQuery::create()
+                ->filterByRoomUser($this) // here
+                ->findOne($con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be

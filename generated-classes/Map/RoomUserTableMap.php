@@ -140,11 +140,10 @@ class RoomUserTableMap extends TableMap
         $this->setClassName('\\RoomUser');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
-        $this->setIsCrossRef(true);
         // columns
-        $this->addForeignPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER' , 'RegisteredUser', 'RegisteredUserId', true, null, null);
+        $this->addPrimaryKey('RoomUserId', 'Roomuserid', 'INTEGER', true, null, null);
         $this->addColumn('VisibleName', 'Visiblename', 'VARCHAR', true, 32, null);
-        $this->addColumn('RegisteredUserId', 'Registereduserid', 'INTEGER', true, null, null);
+        $this->addForeignPrimaryKey('RegisteredUserId', 'Registereduserid', 'INTEGER' , 'RegisteredUser', 'RegisteredUserId', true, null, null);
         $this->addForeignPrimaryKey('RoomId', 'Roomid', 'INTEGER' , 'Room', 'RoomId', true, null, null);
     } // initialize()
 
@@ -153,7 +152,7 @@ class RoomUserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('RoomUserId' => 'RegisteredUserId', ), null, null);
+        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('RegisteredUserId' => 'RegisteredUserId', ), null, null);
         $this->addRelation('Room', '\\Room', RelationMap::MANY_TO_ONE, array('RoomId' => 'RoomId', ), null, null);
     } // buildRelations()
 
@@ -172,7 +171,7 @@ class RoomUserTableMap extends TableMap
     {
         if (Propel::isInstancePoolingEnabled()) {
             if (null === $key) {
-                $key = serialize(array((string) $obj->getRoomuserid(), (string) $obj->getRoomid()));
+                $key = serialize(array((string) $obj->getRoomuserid(), (string) $obj->getRegistereduserid(), (string) $obj->getRoomid()));
             } // if key === null
             self::$instances[$key] = $obj;
         }
@@ -192,11 +191,11 @@ class RoomUserTableMap extends TableMap
     {
         if (Propel::isInstancePoolingEnabled() && null !== $value) {
             if (is_object($value) && $value instanceof \RoomUser) {
-                $key = serialize(array((string) $value->getRoomuserid(), (string) $value->getRoomid()));
+                $key = serialize(array((string) $value->getRoomuserid(), (string) $value->getRegistereduserid(), (string) $value->getRoomid()));
 
-            } elseif (is_array($value) && count($value) === 2) {
+            } elseif (is_array($value) && count($value) === 3) {
                 // assume we've been passed a primary key";
-                $key = serialize(array((string) $value[0], (string) $value[1]));
+                $key = serialize(array((string) $value[0], (string) $value[1], (string) $value[2]));
             } elseif ($value instanceof Criteria) {
                 self::$instances = [];
 
@@ -226,11 +225,11 @@ class RoomUserTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)]));
+        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 3 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)]));
     }
 
     /**
@@ -253,6 +252,11 @@ class RoomUserTableMap extends TableMap
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
                 : self::translateFieldName('Roomuserid', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 2 + $offset
+                : self::translateFieldName('Registereduserid', TableMap::TYPE_PHPNAME, $indexType)
         ];
         $pks[] = (int) $row[
             $indexType == TableMap::TYPE_NUM
@@ -428,7 +432,8 @@ class RoomUserTableMap extends TableMap
             }
             foreach ($values as $value) {
                 $criterion = $criteria->getNewCriterion(RoomUserTableMap::COL_ROOMUSERID, $value[0]);
-                $criterion->addAnd($criteria->getNewCriterion(RoomUserTableMap::COL_ROOMID, $value[1]));
+                $criterion->addAnd($criteria->getNewCriterion(RoomUserTableMap::COL_REGISTEREDUSERID, $value[1]));
+                $criterion->addAnd($criteria->getNewCriterion(RoomUserTableMap::COL_ROOMID, $value[2]));
                 $criteria->addOr($criterion);
             }
         }

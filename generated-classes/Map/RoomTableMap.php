@@ -59,7 +59,7 @@ class RoomTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 8;
+    const NUM_COLUMNS = 9;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class RoomTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 8;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /**
      * the column name for the RoomId field
@@ -82,14 +82,19 @@ class RoomTableMap extends TableMap
     const COL_CREATEDDATE = 'Room.CreatedDate';
 
     /**
+     * the column name for the CreatorUserId field
+     */
+    const COL_CREATORUSERID = 'Room.CreatorUserId';
+
+    /**
+     * the column name for the Topic field
+     */
+    const COL_TOPIC = 'Room.Topic';
+
+    /**
      * the column name for the Timeout field
      */
     const COL_TIMEOUT = 'Room.Timeout';
-
-    /**
-     * the column name for the RoomUsersId field
-     */
-    const COL_ROOMUSERSID = 'Room.RoomUsersId';
 
     /**
      * the column name for the Rating field
@@ -123,11 +128,11 @@ class RoomTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Roomid', 'Createddate', 'Timeout', 'Roomusersid', 'Rating', 'Locationlatitude', 'Locationlongitude', 'Locationaccuracy', ),
-        self::TYPE_CAMELNAME     => array('roomid', 'createddate', 'timeout', 'roomusersid', 'rating', 'locationlatitude', 'locationlongitude', 'locationaccuracy', ),
-        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID, RoomTableMap::COL_CREATEDDATE, RoomTableMap::COL_TIMEOUT, RoomTableMap::COL_ROOMUSERSID, RoomTableMap::COL_RATING, RoomTableMap::COL_LOCATIONLATITUDE, RoomTableMap::COL_LOCATIONLONGITUDE, RoomTableMap::COL_LOCATIONACCURACY, ),
-        self::TYPE_FIELDNAME     => array('RoomId', 'CreatedDate', 'Timeout', 'RoomUsersId', 'Rating', 'LocationLatitude', 'LocationLongitude', 'LocationAccuracy', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Roomid', 'Createddate', 'Creatoruserid', 'Topic', 'Timeout', 'Rating', 'Locationlatitude', 'Locationlongitude', 'Locationaccuracy', ),
+        self::TYPE_CAMELNAME     => array('roomid', 'createddate', 'creatoruserid', 'topic', 'timeout', 'rating', 'locationlatitude', 'locationlongitude', 'locationaccuracy', ),
+        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID, RoomTableMap::COL_CREATEDDATE, RoomTableMap::COL_CREATORUSERID, RoomTableMap::COL_TOPIC, RoomTableMap::COL_TIMEOUT, RoomTableMap::COL_RATING, RoomTableMap::COL_LOCATIONLATITUDE, RoomTableMap::COL_LOCATIONLONGITUDE, RoomTableMap::COL_LOCATIONACCURACY, ),
+        self::TYPE_FIELDNAME     => array('RoomId', 'CreatedDate', 'CreatorUserId', 'Topic', 'Timeout', 'Rating', 'LocationLatitude', 'LocationLongitude', 'LocationAccuracy', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -137,11 +142,11 @@ class RoomTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Roomid' => 0, 'Createddate' => 1, 'Timeout' => 2, 'Roomusersid' => 3, 'Rating' => 4, 'Locationlatitude' => 5, 'Locationlongitude' => 6, 'Locationaccuracy' => 7, ),
-        self::TYPE_CAMELNAME     => array('roomid' => 0, 'createddate' => 1, 'timeout' => 2, 'roomusersid' => 3, 'rating' => 4, 'locationlatitude' => 5, 'locationlongitude' => 6, 'locationaccuracy' => 7, ),
-        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID => 0, RoomTableMap::COL_CREATEDDATE => 1, RoomTableMap::COL_TIMEOUT => 2, RoomTableMap::COL_ROOMUSERSID => 3, RoomTableMap::COL_RATING => 4, RoomTableMap::COL_LOCATIONLATITUDE => 5, RoomTableMap::COL_LOCATIONLONGITUDE => 6, RoomTableMap::COL_LOCATIONACCURACY => 7, ),
-        self::TYPE_FIELDNAME     => array('RoomId' => 0, 'CreatedDate' => 1, 'Timeout' => 2, 'RoomUsersId' => 3, 'Rating' => 4, 'LocationLatitude' => 5, 'LocationLongitude' => 6, 'LocationAccuracy' => 7, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, )
+        self::TYPE_PHPNAME       => array('Roomid' => 0, 'Createddate' => 1, 'Creatoruserid' => 2, 'Topic' => 3, 'Timeout' => 4, 'Rating' => 5, 'Locationlatitude' => 6, 'Locationlongitude' => 7, 'Locationaccuracy' => 8, ),
+        self::TYPE_CAMELNAME     => array('roomid' => 0, 'createddate' => 1, 'creatoruserid' => 2, 'topic' => 3, 'timeout' => 4, 'rating' => 5, 'locationlatitude' => 6, 'locationlongitude' => 7, 'locationaccuracy' => 8, ),
+        self::TYPE_COLNAME       => array(RoomTableMap::COL_ROOMID => 0, RoomTableMap::COL_CREATEDDATE => 1, RoomTableMap::COL_CREATORUSERID => 2, RoomTableMap::COL_TOPIC => 3, RoomTableMap::COL_TIMEOUT => 4, RoomTableMap::COL_RATING => 5, RoomTableMap::COL_LOCATIONLATITUDE => 6, RoomTableMap::COL_LOCATIONLONGITUDE => 7, RoomTableMap::COL_LOCATIONACCURACY => 8, ),
+        self::TYPE_FIELDNAME     => array('RoomId' => 0, 'CreatedDate' => 1, 'CreatorUserId' => 2, 'Topic' => 3, 'Timeout' => 4, 'Rating' => 5, 'LocationLatitude' => 6, 'LocationLongitude' => 7, 'LocationAccuracy' => 8, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -163,8 +168,9 @@ class RoomTableMap extends TableMap
         // columns
         $this->addPrimaryKey('RoomId', 'Roomid', 'INTEGER', true, null, null);
         $this->addColumn('CreatedDate', 'Createddate', 'TIMESTAMP', true, null, null);
+        $this->addForeignPrimaryKey('CreatorUserId', 'Creatoruserid', 'INTEGER' , 'RegisteredUser', 'RegisteredUserId', true, null, null);
+        $this->addColumn('Topic', 'Topic', 'VARCHAR', true, 128, null);
         $this->addColumn('Timeout', 'Timeout', 'TIMESTAMP', true, null, null);
-        $this->addColumn('RoomUsersId', 'Roomusersid', 'INTEGER', true, null, null);
         $this->addColumn('Rating', 'Rating', 'INTEGER', true, null, null);
         $this->addColumn('LocationLatitude', 'Locationlatitude', 'DOUBLE', true, null, null);
         $this->addColumn('LocationLongitude', 'Locationlongitude', 'DOUBLE', true, null, null);
@@ -176,10 +182,63 @@ class RoomTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_ONE, array('CreatorUserId' => 'RegisteredUserId', ), null, null);
         $this->addRelation('Message', '\\Message', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'Messages');
         $this->addRelation('RoomUser', '\\RoomUser', RelationMap::ONE_TO_MANY, array('RoomId' => 'RoomId', ), null, null, 'RoomUsers');
-        $this->addRelation('RegisteredUser', '\\RegisteredUser', RelationMap::MANY_TO_MANY, array(), null, null, 'RegisteredUsers');
     } // buildRelations()
+
+    /**
+     * Adds an object to the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database. In some cases you may need to explicitly add objects
+     * to the cache in order to ensure that the same objects are always returned by find*()
+     * and findPk*() calls.
+     *
+     * @param \Room $obj A \Room object.
+     * @param string $key             (optional) key to use for instance map (for performance boost if key was already calculated externally).
+     */
+    public static function addInstanceToPool($obj, $key = null)
+    {
+        if (Propel::isInstancePoolingEnabled()) {
+            if (null === $key) {
+                $key = serialize(array((string) $obj->getRoomid(), (string) $obj->getCreatoruserid()));
+            } // if key === null
+            self::$instances[$key] = $obj;
+        }
+    }
+
+    /**
+     * Removes an object from the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database.  In some cases -- especially when you override doDelete
+     * methods in your stub classes -- you may need to explicitly remove objects
+     * from the cache in order to prevent returning objects that no longer exist.
+     *
+     * @param mixed $value A \Room object or a primary key value.
+     */
+    public static function removeInstanceFromPool($value)
+    {
+        if (Propel::isInstancePoolingEnabled() && null !== $value) {
+            if (is_object($value) && $value instanceof \Room) {
+                $key = serialize(array((string) $value->getRoomid(), (string) $value->getCreatoruserid()));
+
+            } elseif (is_array($value) && count($value) === 2) {
+                // assume we've been passed a primary key";
+                $key = serialize(array((string) $value[0], (string) $value[1]));
+            } elseif ($value instanceof Criteria) {
+                self::$instances = [];
+
+                return;
+            } else {
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or \Room object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value, true)));
+                throw $e;
+            }
+
+            unset(self::$instances[$key]);
+        }
+    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -197,11 +256,11 @@ class RoomTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Creatoruserid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)];
+        return serialize(array((string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)], (string) $row[TableMap::TYPE_NUM == $indexType ? 2 + $offset : static::translateFieldName('Creatoruserid', TableMap::TYPE_PHPNAME, $indexType)]));
     }
 
     /**
@@ -218,11 +277,20 @@ class RoomTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (int) $row[
+            $pks = [];
+
+        $pks[] = (int) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
                 : self::translateFieldName('Roomid', TableMap::TYPE_PHPNAME, $indexType)
         ];
+        $pks[] = (int) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 2 + $offset
+                : self::translateFieldName('Creatoruserid', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+
+        return $pks;
     }
 
     /**
@@ -324,8 +392,9 @@ class RoomTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(RoomTableMap::COL_ROOMID);
             $criteria->addSelectColumn(RoomTableMap::COL_CREATEDDATE);
+            $criteria->addSelectColumn(RoomTableMap::COL_CREATORUSERID);
+            $criteria->addSelectColumn(RoomTableMap::COL_TOPIC);
             $criteria->addSelectColumn(RoomTableMap::COL_TIMEOUT);
-            $criteria->addSelectColumn(RoomTableMap::COL_ROOMUSERSID);
             $criteria->addSelectColumn(RoomTableMap::COL_RATING);
             $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLATITUDE);
             $criteria->addSelectColumn(RoomTableMap::COL_LOCATIONLONGITUDE);
@@ -333,8 +402,9 @@ class RoomTableMap extends TableMap
         } else {
             $criteria->addSelectColumn($alias . '.RoomId');
             $criteria->addSelectColumn($alias . '.CreatedDate');
+            $criteria->addSelectColumn($alias . '.CreatorUserId');
+            $criteria->addSelectColumn($alias . '.Topic');
             $criteria->addSelectColumn($alias . '.Timeout');
-            $criteria->addSelectColumn($alias . '.RoomUsersId');
             $criteria->addSelectColumn($alias . '.Rating');
             $criteria->addSelectColumn($alias . '.LocationLatitude');
             $criteria->addSelectColumn($alias . '.LocationLongitude');
@@ -390,7 +460,17 @@ class RoomTableMap extends TableMap
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
             $criteria = new Criteria(RoomTableMap::DATABASE_NAME);
-            $criteria->add(RoomTableMap::COL_ROOMID, (array) $values, Criteria::IN);
+            // primary key is composite; we therefore, expect
+            // the primary key passed to be an array of pkey values
+            if (count($values) == count($values, COUNT_RECURSIVE)) {
+                // array is not multi-dimensional
+                $values = array($values);
+            }
+            foreach ($values as $value) {
+                $criterion = $criteria->getNewCriterion(RoomTableMap::COL_ROOMID, $value[0]);
+                $criterion->addAnd($criteria->getNewCriterion(RoomTableMap::COL_CREATORUSERID, $value[1]));
+                $criteria->addOr($criterion);
+            }
         }
 
         $query = RoomQuery::create()->mergeWith($criteria);

@@ -50,11 +50,15 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRegisteredUserQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildRegisteredUserQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
+ * @method     ChildRegisteredUserQuery leftJoinRoom($relationAlias = null) Adds a LEFT JOIN clause to the query using the Room relation
+ * @method     ChildRegisteredUserQuery rightJoinRoom($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Room relation
+ * @method     ChildRegisteredUserQuery innerJoinRoom($relationAlias = null) Adds a INNER JOIN clause to the query using the Room relation
+ *
  * @method     ChildRegisteredUserQuery leftJoinRoomUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the RoomUser relation
  * @method     ChildRegisteredUserQuery rightJoinRoomUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the RoomUser relation
  * @method     ChildRegisteredUserQuery innerJoinRoomUser($relationAlias = null) Adds a INNER JOIN clause to the query using the RoomUser relation
  *
- * @method     \RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \RoomQuery|\RoomUserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRegisteredUser findOne(ConnectionInterface $con = null) Return the first ChildRegisteredUser matching the query
  * @method     ChildRegisteredUser findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRegisteredUser matching the query, or a new ChildRegisteredUser object populated from the query conditions when no match is found
@@ -701,6 +705,79 @@ abstract class RegisteredUserQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query by a related \Room object
+     *
+     * @param \Room|ObjectCollection $room  the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildRegisteredUserQuery The current query, for fluid interface
+     */
+    public function filterByRoom($room, $comparison = null)
+    {
+        if ($room instanceof \Room) {
+            return $this
+                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $room->getCreatoruserid(), $comparison);
+        } elseif ($room instanceof ObjectCollection) {
+            return $this
+                ->useRoomQuery()
+                ->filterByPrimaryKeys($room->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByRoom() only accepts arguments of type \Room or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Room relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRegisteredUserQuery The current query, for fluid interface
+     */
+    public function joinRoom($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Room');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Room');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Room relation Room object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RoomQuery A secondary query class using the current class as primary query
+     */
+    public function useRoomQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinRoom($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Room', '\RoomQuery');
+    }
+
+    /**
      * Filter the query by a related \RoomUser object
      *
      * @param \RoomUser|ObjectCollection $roomUser  the related object to use as filter
@@ -712,7 +789,7 @@ abstract class RegisteredUserQuery extends ModelCriteria
     {
         if ($roomUser instanceof \RoomUser) {
             return $this
-                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $roomUser->getRoomuserid(), $comparison);
+                ->addUsingAlias(RegisteredUserTableMap::COL_REGISTEREDUSERID, $roomUser->getRegistereduserid(), $comparison);
         } elseif ($roomUser instanceof ObjectCollection) {
             return $this
                 ->useRoomUserQuery()
@@ -771,23 +848,6 @@ abstract class RegisteredUserQuery extends ModelCriteria
         return $this
             ->joinRoomUser($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'RoomUser', '\RoomUserQuery');
-    }
-
-    /**
-     * Filter the query by a related Room object
-     * using the RoomUser table as cross reference
-     *
-     * @param Room $room the related object to use as filter
-     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ChildRegisteredUserQuery The current query, for fluid interface
-     */
-    public function filterByRoom($room, $comparison = Criteria::EQUAL)
-    {
-        return $this
-            ->useRoomUserQuery()
-            ->filterByRoom($room, $comparison)
-            ->endUse();
     }
 
     /**

@@ -56,13 +56,18 @@ CREATE TABLE `Room`
 (
     `RoomId` INTEGER NOT NULL AUTO_INCREMENT,
     `CreatedDate` DATETIME NOT NULL,
+    `CreatorUserId` INTEGER NOT NULL,
+    `Topic` VARCHAR(128) NOT NULL,
     `Timeout` DATETIME NOT NULL,
-    `RoomUsersId` INTEGER NOT NULL,
     `Rating` INTEGER NOT NULL,
     `LocationLatitude` DOUBLE NOT NULL,
     `LocationLongitude` DOUBLE NOT NULL,
     `LocationAccuracy` INTEGER NOT NULL,
-    PRIMARY KEY (`RoomId`)
+    PRIMARY KEY (`RoomId`,`CreatorUserId`),
+    INDEX `Room_fi_793b73` (`CreatorUserId`),
+    CONSTRAINT `Room_fk_793b73`
+        FOREIGN KEY (`CreatorUserId`)
+        REFERENCES `RegisteredUser` (`RegisteredUserId`)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
@@ -77,10 +82,11 @@ CREATE TABLE `RoomUser`
     `VisibleName` VARCHAR(32) NOT NULL,
     `RegisteredUserId` INTEGER NOT NULL,
     `RoomId` INTEGER NOT NULL,
-    PRIMARY KEY (`RoomUserId`,`RoomId`),
+    PRIMARY KEY (`RoomUserId`,`RegisteredUserId`,`RoomId`),
+    INDEX `RoomUser_fi_bb0d7a` (`RegisteredUserId`),
     INDEX `RoomUser_fi_41e335` (`RoomId`),
-    CONSTRAINT `RoomUser_fk_f4d663`
-        FOREIGN KEY (`RoomUserId`)
+    CONSTRAINT `RoomUser_fk_bb0d7a`
+        FOREIGN KEY (`RegisteredUserId`)
         REFERENCES `RegisteredUser` (`RegisteredUserId`),
     CONSTRAINT `RoomUser_fk_41e335`
         FOREIGN KEY (`RoomId`)

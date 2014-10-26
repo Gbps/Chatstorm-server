@@ -456,7 +456,7 @@ abstract class MessageQuery extends ModelCriteria
             }
 
             return $this
-                ->addUsingAlias(MessageTableMap::COL_ROOMID, $room->toKeyValue('PrimaryKey', 'Roomid'), $comparison);
+                ->addUsingAlias(MessageTableMap::COL_ROOMID, $room->toKeyValue('Roomid', 'Roomid'), $comparison);
         } else {
             throw new PropelException('filterByRoom() only accepts arguments of type \Room or Collection');
         }

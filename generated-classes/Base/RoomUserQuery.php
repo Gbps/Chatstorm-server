@@ -105,10 +105,10 @@ abstract class RoomUserQuery extends ModelCriteria
      * Go fast if the query is untouched.
      *
      * <code>
-     * $obj = $c->findPk(array(12, 34), $con);
+     * $obj = $c->findPk(array(12, 34, 56), $con);
      * </code>
      *
-     * @param array[$RoomUserId, $RoomId] $key Primary key to use for the query
+     * @param array[$RoomUserId, $RegisteredUserId, $RoomId] $key Primary key to use for the query
      * @param ConnectionInterface $con an optional connection object
      *
      * @return ChildRoomUser|array|mixed the result, formatted by the current formatter
@@ -118,7 +118,7 @@ abstract class RoomUserQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = RoomUserTableMap::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
+        if ((null !== ($obj = RoomUserTableMap::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1], (string) $key[2]))))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -148,11 +148,12 @@ abstract class RoomUserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, RoomId FROM RoomUser WHERE RoomUserId = :p0 AND RoomId = :p1';
+        $sql = 'SELECT RoomUserId, VisibleName, RegisteredUserId, RoomId FROM RoomUser WHERE RoomUserId = :p0 AND RegisteredUserId = :p1 AND RoomId = :p2';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
             $stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
+            $stmt->bindValue(':p2', $key[2], PDO::PARAM_INT);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -163,7 +164,7 @@ abstract class RoomUserQuery extends ModelCriteria
             /** @var ChildRoomUser $obj */
             $obj = new ChildRoomUser();
             $obj->hydrate($row);
-            RoomUserTableMap::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1])));
+            RoomUserTableMap::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1], (string) $key[2])));
         }
         $stmt->closeCursor();
 
@@ -223,7 +224,8 @@ abstract class RoomUserQuery extends ModelCriteria
     public function filterByPrimaryKey($key)
     {
         $this->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $key[0], Criteria::EQUAL);
-        $this->addUsingAlias(RoomUserTableMap::COL_ROOMID, $key[1], Criteria::EQUAL);
+        $this->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $key[1], Criteria::EQUAL);
+        $this->addUsingAlias(RoomUserTableMap::COL_ROOMID, $key[2], Criteria::EQUAL);
 
         return $this;
     }
@@ -242,8 +244,10 @@ abstract class RoomUserQuery extends ModelCriteria
         }
         foreach ($keys as $key) {
             $cton0 = $this->getNewCriterion(RoomUserTableMap::COL_ROOMUSERID, $key[0], Criteria::EQUAL);
-            $cton1 = $this->getNewCriterion(RoomUserTableMap::COL_ROOMID, $key[1], Criteria::EQUAL);
+            $cton1 = $this->getNewCriterion(RoomUserTableMap::COL_REGISTEREDUSERID, $key[1], Criteria::EQUAL);
             $cton0->addAnd($cton1);
+            $cton2 = $this->getNewCriterion(RoomUserTableMap::COL_ROOMID, $key[2], Criteria::EQUAL);
+            $cton0->addAnd($cton2);
             $this->addOr($cton0);
         }
 
@@ -259,8 +263,6 @@ abstract class RoomUserQuery extends ModelCriteria
      * $query->filterByRoomuserid(array(12, 34)); // WHERE RoomUserId IN (12, 34)
      * $query->filterByRoomuserid(array('min' => 12)); // WHERE RoomUserId > 12
      * </code>
-     *
-     * @see       filterByRegisteredUser()
      *
      * @param     mixed $roomuserid The value to use as filter.
      *              Use scalar values for equality.
@@ -331,6 +333,8 @@ abstract class RoomUserQuery extends ModelCriteria
      * $query->filterByRegistereduserid(array(12, 34)); // WHERE RegisteredUserId IN (12, 34)
      * $query->filterByRegistereduserid(array('min' => 12)); // WHERE RegisteredUserId > 12
      * </code>
+     *
+     * @see       filterByRegisteredUser()
      *
      * @param     mixed $registereduserid The value to use as filter.
      *              Use scalar values for equality.
@@ -420,14 +424,14 @@ abstract class RoomUserQuery extends ModelCriteria
     {
         if ($registeredUser instanceof \RegisteredUser) {
             return $this
-                ->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $registeredUser->getRegistereduserid(), $comparison);
+                ->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $registeredUser->getRegistereduserid(), $comparison);
         } elseif ($registeredUser instanceof ObjectCollection) {
             if (null === $comparison) {
                 $comparison = Criteria::IN;
             }
 
             return $this
-                ->addUsingAlias(RoomUserTableMap::COL_ROOMUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
+                ->addUsingAlias(RoomUserTableMap::COL_REGISTEREDUSERID, $registeredUser->toKeyValue('PrimaryKey', 'Registereduserid'), $comparison);
         } else {
             throw new PropelException('filterByRegisteredUser() only accepts arguments of type \RegisteredUser or Collection');
         }
@@ -504,7 +508,7 @@ abstract class RoomUserQuery extends ModelCriteria
             }
 
             return $this
-                ->addUsingAlias(RoomUserTableMap::COL_ROOMID, $room->toKeyValue('PrimaryKey', 'Roomid'), $comparison);
+                ->addUsingAlias(RoomUserTableMap::COL_ROOMID, $room->toKeyValue('Roomid', 'Roomid'), $comparison);
         } else {
             throw new PropelException('filterByRoom() only accepts arguments of type \Room or Collection');
         }
@@ -571,8 +575,9 @@ abstract class RoomUserQuery extends ModelCriteria
     {
         if ($roomUser) {
             $this->addCond('pruneCond0', $this->getAliasedColName(RoomUserTableMap::COL_ROOMUSERID), $roomUser->getRoomuserid(), Criteria::NOT_EQUAL);
-            $this->addCond('pruneCond1', $this->getAliasedColName(RoomUserTableMap::COL_ROOMID), $roomUser->getRoomid(), Criteria::NOT_EQUAL);
-            $this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
+            $this->addCond('pruneCond1', $this->getAliasedColName(RoomUserTableMap::COL_REGISTEREDUSERID), $roomUser->getRegistereduserid(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond2', $this->getAliasedColName(RoomUserTableMap::COL_ROOMID), $roomUser->getRoomid(), Criteria::NOT_EQUAL);
+            $this->combine(array('pruneCond0', 'pruneCond1', 'pruneCond2'), Criteria::LOGICAL_OR);
         }
 
         return $this;

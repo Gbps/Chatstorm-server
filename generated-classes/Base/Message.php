@@ -1232,7 +1232,9 @@ abstract class Message implements ActiveRecordInterface
     public function getRoom(ConnectionInterface $con = null)
     {
         if ($this->aRoom === null && ($this->roomid !== null)) {
-            $this->aRoom = ChildRoomQuery::create()->findPk($this->roomid, $con);
+            $this->aRoom = ChildRoomQuery::create()
+                ->filterByMessage($this) // here
+                ->findOne($con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
