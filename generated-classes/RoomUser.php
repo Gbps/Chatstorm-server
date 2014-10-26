@@ -14,17 +14,42 @@ use Base\RoomUser as BaseRoomUser;
  */
 class RoomUser extends BaseRoomUser
 {
+
+    public static function GetAdjective()
+    {
+        $lines = file("../include/adjectives.txt", FILE_IGNORE_NEW_LINES);
+
+        $randomFind = array_rand( $lines );
+
+        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
+
+        return $randomFind;
+
+    }
+
+    public static function GetNoun()
+    {
+        $lines = file("../include/nouns.txt", FILE_IGNORE_NEW_LINES);
+
+        $randomFind = array_rand( $lines );
+
+        $randomFind = ucfirst(str_replace(' ', '', $randomFind));
+
+        return $randomFind;
+
+    }
+
     public static function CreateRoomUser( Room $room, RegisteredUser $user )
     {
         $newRoomUser = new RoomUser();
-        $newRoomUser->setVisiblename( "RoomUser" );
+        $newRoomUser->setVisiblename( GetAdjective() + GetNoun() );
         $newRoomUser->setRegisteredUser( $user );
         $newRoomUser->setRoom( $room );
         $newRoomUser->save();
 
         $room->addRoomUser( $newRoomUser );
         $room->save();
-        
+
         return $newRoomUser;
 
     }
