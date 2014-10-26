@@ -42,7 +42,7 @@ class RoomUser extends BaseRoomUser
     public static function CreateRoomUser( Room $room, RegisteredUser $user )
     {
         $newRoomUser = new RoomUser();
-        $newRoomUser->setVisiblename( GetAdjective() + GetNoun() );
+        $newRoomUser->setVisiblename( RoomUser::GetAdjective() . RoomUser::GetNoun() );
         $newRoomUser->setRegisteredUser( $user );
         $newRoomUser->setRoom( $room );
         $newRoomUser->save();
